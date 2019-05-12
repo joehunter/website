@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+
+<style>
+
+hr.ex {
+    
+    border: 0;
+    border-bottom: 1px dashed #ccc;
+    background: #999;
+}
+
+
+p.ex {
+    color: rgb(0,0,255);
+}
+
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>joeblogs.ie | 70-761</title>
+
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" id="st_insights_js" src="http://w.sharethis.com/button/buttons.js?publisher=330639e3-8d46-4645-84fd-7f790c9546da"></script>
+<script type="text/javascript">stLight.options({publisher: "330639e3-8d46-4645-84fd-7f790c9546da", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+
+</head>
+
+<body>
+
+ <div class="container theme-showcase" role="main">
+
+		<br/>
+		<hr class="ex">
+		<h3 id="topLinks" style='color:black'>
+				<img src='./imgs/sql_server_logo.png' >
+		70-761&nbsp;/&nbsp;Querying Data with Transact-SQL
+		&nbsp;|&nbsp;Joe Hunter
+		</h3>
+
+		<hr class="ex">
+		
+		<span class='st_sharethis' displayText='ShareThis'></span>
+		<span class='st_facebook' displayText='Facebook'></span>
+		<span class='st_twitter' displayText='Tweet'></span>
+		<span class='st_linkedin' displayText='LinkedIn'></span>
+		<span class='st_pinterest' displayText='Pinterest'></span>
+		<span class='st_email' displayText='Email'></span>
+		
+		<br/><br/>
+		
+		<a href="../index.html" class="btn btn-default btn-sm">
+			<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;back to joeblogs.ie
+		</a>
+		
+
+	<br/><br/>
+
+
+
+<br/><br/>
+
+<h4 style='color:green'>About</h4>
+<div class='well'>
+Some notes from completing the <a target='_blank' href='https://www.microsoft.com/en-us/learning/exam-70-461.aspx'>
+Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight new topics introduced from the previous exam 70-461.
+
+<br/><br/>
+<b><a href='https://twitter.com/joehunter' target='_blank'>@JoeHunter</a></b>
+</div>
+
+
+
+<div>
+
+	<h4>Contents</h4>
+	<div class="well">
+	<ul>
+
+	
+	<li><p><a href="#2.1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;ANY, ALL, SOME</a></p></li>	
+	<li><p><a href="#2.1.2"><span class="glyphicon glyphicon-link"></span>&nbsp;APPLY operator</a></p></li>	
+
+	<li><p><a href="#2.3.3"><span class="glyphicon glyphicon-link"></span>&nbsp;WINDOW Functions: Aggregate, Ranking & Offset</a></p></li>
+
+	</ul>
+	</div>
+
+</div>
+
+<br><br>
+
+
+
+
+<div id="2.1.1">
+	<hr class="ex">
+	<h4>ANY, ALL, SOME</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			These predicates, ANY ALL SOME, can be used on a T-SQL subquery. They are very unusual I have not seen them being used in production code before. 
+			They follow this format:<br/><br/>
+
+			SELECT <select_list> <br/>
+				FROM table<br/>
+				WHERE <expression> <operator> {ALL | ANY | SOME} (<subquery>);<br/>
+		</p>
+		
+		<p>
+			The example below shows the cheapest product using the ALL operator:
+			<img src='./imgs/2.1.1.PNG'>
+		</p>
+
+		<p>
+			There are some really useful workable demos on W3Schools 
+			<a href='https://www.w3schools.com/sql/sql_any_all.asp' target='_blank'>available here to view</a>
+
+		</p>
+		
+
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
+
+
+<div id="2.1.2">
+		<hr class="ex">
+		<h4>APPLY Operator</h4>
+		<hr class="ex">
+		
+		<div>
+			
+
+			<p>
+				In a JOIN operation, two or more static relations participate. The APPLY operator however differs in that the left side
+				is a static relation and the right side is a table expression. Where APPLY really comes into its own is in replacing cursor
+				like operations where you have to iterate through a series of rows and apply (get it?) an operation on each row.
+				A use case would be in a table of hospital patients joined to a table of diagnoses and show the top 3 diagnoses per patients
+				weighted by some complexity value. 
+			</p>
+			
+			<br/>
+			<P>For a more comprehensive explanation please see video below from Itzik Ben-Gan...</P>
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/VMH2y_3XBa0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		
+		</div>
+		
+		<br>
+		
+		<a href="#topLinks" class="btn btn-default btn-sm">
+			<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+		</a>
+		
+
+</div>
+
+<br>
+
+
+
+
+
+
+<div id="2.3.3">
+	<hr class="ex">
+	<h4>WINDOW Functions: Aggregate, Ranking & Offset</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			Windows functions are not new in SQL Server 2016. But they are worth reviewing considering how useful they
+			are in calculating running totals (Window Frame Extents), removing duplicates (Window Ranking Functions) and 
+			including aggregations mixed with detail rows (Window Aggregate functions).
+		</p>
+		
+		<br/>
+
+		<p>
+		Below is sample query I wrote demonstrating the main features of Window functions except for the ranking options:
+		<br/>
+		<img src='./imgs/2.3.3.PNG'>
+
+		</p>
+
+		<br/>
+		<P>For a more comprehensive explanation please see video below from Itzik Ben-Gan...</P>
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/KM83eVqHHPA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
+
+
+<br/><br/><br/>
+
+
+
+<br><br><br>
+<hr class="ex">
+<p>[Added on 06.04.2019 | joeblogs.ie]</p>
+<br>
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+</div> <!-- end div class="container theme-showcase" role="main" -->
+
+</body>
+</html>
+
+

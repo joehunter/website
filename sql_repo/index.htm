@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+
+<style>
+
+hr.ex {
+    
+    border: 0;
+    border-bottom: 1px dashed #ccc;
+    background: #999;
+}
+
+
+p.ex {
+    color: rgb(0,0,255);
+}
+
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>joeblogs.ie | SQL Repository</title>
+
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" id="st_insights_js" src="http://w.sharethis.com/button/buttons.js?publisher=330639e3-8d46-4645-84fd-7f790c9546da"></script>
+<script type="text/javascript">stLight.options({publisher: "330639e3-8d46-4645-84fd-7f790c9546da", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+
+</head>
+
+<body>
+
+ <div class="container theme-showcase" role="main">
+
+		<br/>
+		<hr class="ex">
+		<h3 id="topLinks" style='color:green'>
+				<img src='./imgs/sql_server_logo.png' >
+		Notes&nbsp;on&nbsp;70-461&nbsp;Querying Microsoft SQL Server 2012/2014
+		&nbsp;|&nbsp;Joe Hunter
+		</h3>
+
+		<hr class="ex">
+		
+		<span class='st_sharethis' displayText='ShareThis'></span>
+		<span class='st_facebook' displayText='Facebook'></span>
+		<span class='st_twitter' displayText='Tweet'></span>
+		<span class='st_linkedin' displayText='LinkedIn'></span>
+		<span class='st_pinterest' displayText='Pinterest'></span>
+		<span class='st_email' displayText='Email'></span>
+		
+		<br/><br/>
+		
+		<a href="../index.html" class="btn btn-default btn-sm">
+			<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;back to joeblogs.ie
+		</a>
+		
+
+	<br/><br/>
+
+<img src='70-461_badge.png'>
+
+
+<br/><br/>
+
+<h4 style='color:green'>About</h4>
+<div class='well'>
+Some hacks/scripts that I use frequently and when I was studying for <a target='_blank' href='https://www.microsoft.com/en-us/learning/exam-70-461.aspx'>
+Querying Microsoft SQL Server 2012/2014.</a> exam 
+
+<br/><br/>
+<b><a href='https://twitter.com/joehunter' target='_blank'>@JoeHunter</a></b>
+</div>
+
+
+
+<div>
+
+	<h4>Contents</h4>
+	<div class="well">
+	<ul>
+
+		
+	<li><p><a href="#drop_all_sprocs"><span class="glyphicon glyphicon-link"></span>&nbsp;Drop ALL Stored Procedures</a></p></li>	
+	<li><p><a href="#varchar_max_print"><span class="glyphicon glyphicon-link"></span>&nbsp;How to print VARCHAR(MAX) using Print Statement?</a></p></li>
+			
+	<li><p><a href="#discovery"><span class="glyphicon glyphicon-link"></span>&nbsp;Server Discovery Scripts</a></p></li>
+	<li><p><a href="#drop_indexes"><span class="glyphicon glyphicon-link"></span>&nbsp;Drop All Indexes From A Table</a></p></li>
+	<li><p><a href="#de-identify"><span class="glyphicon glyphicon-link"></span>&nbsp;De-identify/Anonymize Scripts</a></p></li>
+	<li><p><a href="#de-identify"><span class="glyphicon glyphicon-link"></span>&nbsp;Maintenance Scripts</a></p></li>
+	<li><p><a href="#de-identify"><span class="glyphicon glyphicon-link"></span>&nbsp;Data Profiling Scripts</a></p></li>
+
+	</ul>
+	</div>
+
+</div>
+
+<br><br>
+
+
+
+<div id="drop_all_sprocs">
+		<hr class="ex">
+		<h4>Drop ALL Stored Procedures</h4>
+		<hr class="ex">
+		
+		<div>
+
+				<b><a href='./sql_scripts/drop_all_sprocs.txt' target='_blank'>
+					<span class="glyphicon glyphicon-link"></span>&nbsp;
+					Script is here...</a>
+				</b> 
+				
+				<br/><br/>
+
+			<p>
+				First question is probably: why do this? I use this when deploying an update to an app to
+				ensure that all stored procedures are deployed successfully.
+			</p>
+					
+			<img src='./imgs/drop_all_procs.png'>
+		
+		</div>
+		
+		<br>
+		
+		<a href="#topLinks" class="btn btn-default btn-sm">
+			<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+		</a>
+		
+		
+<br/><br/><br/>
+
+
+
+<div id="varchar_max_print">
+		<hr class="ex">
+		<h4>How to print VARCHAR(MAX) using Print Statement?</h4>
+		<hr class="ex">
+		
+		<div>
+
+			<p>
+				Unfortunately I have had to use this when printing really long dynamic SQL insert statements that exceed 8000 characters.
+				One solution is to use multiple prints and divide up the SQL string for each print. However this is a more
+				elegant fix:
+			</p>
+	
+			<img src='./imgs/print_varchar_max.png'>
+		
+		</div>
+		
+		<br>
+		
+		<a href="#topLinks" class="btn btn-default btn-sm">
+			<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+		</a>
+		
+		
+<br/><br/><br/>
+
+
+
+<div id="discovery">
+<hr class="ex">
+<h4>Server Discovery Scripts</h4>
+<hr class="ex">
+
+<div>
+	<ul>
+
+	<li><span class="glyphicon glyphicon-link"></span>
+		<b><a href='./sql_scripts/server_discovery.txt'>Determine how much memory and number of processors on your server?</a></b> 
+		<br/><br/>
+		<img src='./imgs/server_discovery.png'>
+	</li>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="drop_indexes">
+<hr class="ex">
+<h4>Drop All Indexes From A Table</h4>
+<hr class="ex">
+
+<div>
+	
+	<ul>
+
+	<li><span class="glyphicon glyphicon-link"></span>
+		<b><a href='./sql_scripts/drop_indexes.txt'>Sample script drops all indexes from a table called Main.</a></b> 
+		<br/><br/>
+		<img src='./imgs/drop_indexes.png'
+	</li>
+	
+	</ul>
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<br><br><br>
+<hr class="ex">
+<p>[Added on 26.08.2016 | joeblogs.ie]</p>
+<br>
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+</div> <!-- end div class="container theme-showcase" role="main" -->
+
+</body>
+</html>
+
+

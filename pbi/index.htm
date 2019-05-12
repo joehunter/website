@@ -1,0 +1,5111 @@
+﻿
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+<style>
+
+hr.ex {
+    
+    border: 0;
+    border-bottom: 1px dashed #ccc;
+    background: #999;
+}
+
+
+p.ex {
+    color: rgb(0,0,255);
+}
+
+
+  img.ex{
+    border: 2px #c0c0c0 solid; 
+  }
+
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>joeblogs.ie | Power BI</title>
+
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" id="st_insights_js" src="http://w.sharethis.com/button/buttons.js?publisher=330639e3-8d46-4645-84fd-7f790c9546da"></script>
+<script type="text/javascript">stLight.options({publisher: "330639e3-8d46-4645-84fd-7f790c9546da", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+
+</head>
+
+<body>
+
+ <div class="container theme-showcase" role="main">
+
+<br/>
+
+
+<br/>
+<hr class="ex">
+<h3 id="topLinks" style='color:#000000'>
+<img src='./imgs/power-bi-vector-logo-small.png' >
+&nbsp;
+Notes&nbsp;on&nbsp;PowerBI&nbsp;Report Server Implementation
+&nbsp;|&nbsp;Joe Hunter
+</h3>
+<hr class="ex">
+
+<span class='st_sharethis' displayText='ShareThis'></span>
+<span class='st_facebook' displayText='Facebook'></span>
+<span class='st_twitter' displayText='Tweet'></span>
+<span class='st_linkedin' displayText='LinkedIn'></span>
+<span class='st_pinterest' displayText='Pinterest'></span>
+<span class='st_email' displayText='Email'></span>
+
+<br/><br/>
+
+<a href="../index.html" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;back to joeblogs.ie
+</a>
+
+<br/><br/>
+
+<h4 style='color:green'>About</h4>
+
+<a href='https://www.sqlbi.com/tv/'>Include this link</a>
+
+<div class='well'>
+These are my personal notes from studying for <a target='_blank' href='https://www.amazon.com/Training-70-463-Implementing-Warehouse-Microsoft/dp/0735666091'>70-463: Implementing a Data Warehouse with Microsoft SQL Server 2012.</a> Included are links to other articles, blog entries and content I found useful in completing the exam. Please feel free to use and share.
+<br/><br/>
+<b><a href='https://twitter.com/joehunter' target='_blank'>@JoeHunter</a></b>
+</div>
+
+<div>
+
+	<h4 style='color:green'>Contents</h4>
+	<div class="well">
+	<ul>
+
+	<p><b>Requirements</b></p>
+	<li><p><a href="#0"><span class="glyphicon glyphicon-link"></span>&nbsp;70-463&nbsp;Requirements</a></p></li>
+	<hr class="ex">
+
+	<p><b>Section One: The Logical Data Warehouse</b></p>
+	<li><p><a href="#1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;1.1)&nbsp;The Star & Snowflake Schema</a></p></li>
+	<li><p><a href="#1.2"><span class="glyphicon glyphicon-link"></span>&nbsp;1.2)&nbsp;Dimension Tables</a></p></li>
+	<li><p><a href="#1.3"><span class="glyphicon glyphicon-link"></span>&nbsp;1.3)&nbsp;Fact Tables</a></p></li>
+	<hr class="ex">
+
+
+	<p><b>Section Two: The Physical Data Warehouse</b></p>
+	<li><p><a href="#2.1"><span class="glyphicon glyphicon-link"></span>
+	&nbsp;2.1)&nbsp;Physically Implementing Dimension & Fact Tables</a></p></li>
+	<li><p><a href="#2.2"><span class="glyphicon glyphicon-link"></span>&nbsp;2.2)&nbsp;Data Warehouse Performance</a></p></li>
+	<li><p><a href="#2.3"><span class="glyphicon glyphicon-link"></span>&nbsp;2.3)&nbsp;Partitioning</a></p></li>
+	<hr class="ex">
+
+	<p><b>Section Three: Connection managers, Control flow, Containers and precedence Constraints</b></p>
+	<li><p><a href="#3.1"><span class="glyphicon glyphicon-link"></span>&nbsp;3.1)&nbsp;Connection Managers</a></p></li>
+	<li><p><a href="#3.2"><span class="glyphicon glyphicon-link"></span>&nbsp;3.2)&nbsp;Control Flow & Containers</a></p></li>
+	<li><p><a href="#3.3"><span class="glyphicon glyphicon-link"></span>&nbsp;3.3)&nbsp;Precedence Constraints</a></p></li>
+	<hr class="ex">
+
+	<p><b>Section Four: All About Data Flow: Data Sources, Transformations and Destinations</b></p>
+	<li><p><a href="#4.1"><span class="glyphicon glyphicon-link"></span>&nbsp;4.1)&nbsp;Data Flow Source Adapters: The E in ETL</a></p></li>
+	<li><p><a href="#4.2"><span class="glyphicon glyphicon-link"></span>&nbsp;4.2)&nbsp;Data Flow Transformations: The T in ETL</a></p></li>
+	<li><p><a href="#4.3"><span class="glyphicon glyphicon-link"></span>&nbsp;4.3)&nbsp;Data Flow Destination Adapters: The L in ETL</a></p></li>
+	<li><p><a href="#4.4"><span class="glyphicon glyphicon-link"></span>&nbsp;4.4)&nbsp;Lookup Transformations</a></p></li>
+	<hr class="ex">
+
+
+	<p><b>Section Five: Variables, Expressions and Master Packages</b></p>
+	<li><p><a href="#5.1"><span class="glyphicon glyphicon-link"></span>&nbsp;5.1)&nbsp;Using SSIS Variables</a></p></li>
+	<li><p><a href="#5.2"><span class="glyphicon glyphicon-link"></span>&nbsp;5.2)&nbsp;Expressions</a></p></li>
+	<li><p><a href="#5.3"><span class="glyphicon glyphicon-link"></span>&nbsp;5.3)&nbsp;Property Parameterization</a></p></li>
+	<li><p><a href="#5.4"><span class="glyphicon glyphicon-link"></span>&nbsp;5.4)&nbsp;Master Package Concept</a></p></li>
+	
+	<hr class="ex">
+
+
+	<p><b>Section Six: Enhancing the Data Flow</b></p>
+	<li><p><a href="#6.1"><span class="glyphicon glyphicon-link"></span>&nbsp;6.1)&nbsp;The Slowly Changing Dimensions Requirement&nbsp;</a>
+	</p></li>
+	<li><p><a href="#6.2"><span class="glyphicon glyphicon-link"></span>&nbsp;6.2)&nbsp;How To Incrementally Load A Fact Table&nbsp;</a>
+	</p></li>
+	<li><p><a href="#6.3"><span class="glyphicon glyphicon-link"></span>&nbsp;6.3)&nbsp;Go With The Error Flow&nbsp;</a>
+	</p></li>
+		
+	<hr class="ex">
+
+
+	<p><b>Section Seven: Robust & Restartable</b></p>
+	<li><p><a href="#7.1"><span class="glyphicon glyphicon-link"></span>&nbsp;7.1)&nbsp;Maintaining ACID Properties&nbsp;</a>
+	</p></li>
+	<li><p><a href="#7.2"><span class="glyphicon glyphicon-link"></span>&nbsp;7.2)&nbsp;Checkpoints: Restartability&nbsp;</a>
+	</p></li>
+	<li><p><a href="#7.3"><span class="glyphicon glyphicon-link"></span>&nbsp;7.3)&nbsp;Event Handling&nbsp;</a>
+	</p></li>
+		
+	<hr class="ex">
+
+
+	<p><b>Section Eight: Dynamism</b></p>
+	<li><p><a href="#8.1"><span class="glyphicon glyphicon-link"></span>&nbsp;8.1)&nbsp;Connection Managers & Parameters&nbsp;</a>
+	</p></li>
+	<li><p><a href="#8.2"><span class="glyphicon glyphicon-link"></span>&nbsp;8.2)&nbsp;Package Configurations&nbsp;</a>
+	</p></li>	
+		
+	<hr class="ex">
+
+	<p><b>Section Nine: Logging, Auditing & Package Templates</b></p>
+	<li><p><a href="#9.1"><span class="glyphicon glyphicon-link"></span>&nbsp;9.1)&nbsp;Logging&nbsp;</a>
+	</p></li>
+	<li><p><a href="#9.2"><span class="glyphicon glyphicon-link"></span>&nbsp;9.2)&nbsp;Auditing & Lineage&nbsp;</a>
+	</p></li>	
+	<li><p><a href="#9.3"><span class="glyphicon glyphicon-link"></span>&nbsp;9.3)&nbsp;Package Templates&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+	<p><b>Section Ten: SSIS Installation & SSIS Deployment</b></p>
+	<li><p><a href="#10.1"><span class="glyphicon glyphicon-link"></span>&nbsp;10.1)&nbsp;SSIS Installation&nbsp;</a>
+	</p></li>
+	<li><p><a href="#10.2"><span class="glyphicon glyphicon-link"></span>&nbsp;10.2)&nbsp;SSIS Deployment&nbsp;</a>
+	</p></li>	
+	
+
+
+	<hr class="ex">
+
+	<p><b>Section Eleven: Executing & Securing Packages</b></p>
+	<li><p><a href="#11.1"><span class="glyphicon glyphicon-link"></span>&nbsp;11.1)&nbsp;Package Execution&nbsp;</a>
+	</p></li>
+	<li><p><a href="#11.2"><span class="glyphicon glyphicon-link"></span>&nbsp;11.2)&nbsp;Securing Packages&nbsp;</a>
+	</p></li>	
+	
+
+	<hr class="ex">
+
+	<p><b>Section Twelve: Troubleshooting & Performance Tuning</b></p>
+	<li><p><a href="#12.1"><span class="glyphicon glyphicon-link"></span>&nbsp;12.1)&nbsp;Troubleshooting&nbsp;</a>
+	</p></li>
+	<li><p><a href="#12.2"><span class="glyphicon glyphicon-link"></span>&nbsp;12.2)&nbsp;Performance Tuning&nbsp;</a>
+	</p></li>	
+	
+
+
+	<hr class="ex">
+
+	<p><b>Section Thirteen: Data Quality Services (DQS)</b></p>
+	<li><p><a href="#13.1"><span class="glyphicon glyphicon-link"></span>&nbsp;13.1)&nbsp;Data Quality Dimensions&nbsp;
+	</a>
+	</p></li>
+
+	<li><p><a href="#13.2"><span class="glyphicon glyphicon-link"></span>&nbsp;13.2)&nbsp;Data Quality Services (DQS)&nbsp;
+	</a>
+	</p></li>	
+
+	<li><p><a href="#13.3"><span class="glyphicon glyphicon-link"></span>&nbsp;13.3)&nbsp;Data Quality Services Administration
+	&nbsp;
+	</a>
+	</p></li>	
+
+
+	<hr class="ex">
+
+	<p><b>Section Fourteen: Master Data Implementation</b></p>
+	<li><p><a href="#14.1"><span class="glyphicon glyphicon-link"></span>&nbsp;14.1)&nbsp;What is Master Data?&nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#14.2"><span class="glyphicon glyphicon-link"></span>&nbsp;14.2)&nbsp;Master Data Management (MDM)&nbsp;
+	</a>
+	</p></li>	
+
+	<li><p><a href="#14.3"><span class="glyphicon glyphicon-link"></span>&nbsp;14.3)&nbsp;Master Data Services Installation On Windows 7&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#14.4"><span class="glyphicon glyphicon-link"></span>&nbsp;14.4)&nbsp;Master Data Services Models&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+
+
+	<p><b>Section Fifteen: Master Data Management</b></p>
+	<li><p><a href="#15.1"><span class="glyphicon glyphicon-link"></span>&nbsp;15.1)&nbsp;Import/Export Master Data&nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#15.2"><span class="glyphicon glyphicon-link"></span>&nbsp;15.2)&nbsp;Securing Master Data&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#15.3"><span class="glyphicon glyphicon-link"></span>&nbsp;15.3)&nbsp;Excel MDS Add-in&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+
+	
+	<p><b>Section Sixteen: Cleaning Data in a Data Quality Project</b></p>
+	<li><p><a href="#16.1"><span class="glyphicon glyphicon-link"></span>&nbsp;16.1)&nbsp;Knowledge Bases&nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#16.2"><span class="glyphicon glyphicon-link"></span>&nbsp;16.2)&nbsp;Creating a DQS Cleansing Project&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#16.3"><span class="glyphicon glyphicon-link"></span>&nbsp;16.3)&nbsp;Data Profiling&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+
+
+	<p><b>Section Seventeen: How To Train Your Data - Data Mining</b></p>
+	<li><p><a href="#17.1"><span class="glyphicon glyphicon-link"></span>&nbsp;17.1)&nbsp;Introduction to Data Mining&nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#17.2"><span class="glyphicon glyphicon-link"></span>&nbsp;17.2)&nbsp;Text Mining&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#17.3"><span class="glyphicon glyphicon-link"></span>&nbsp;17.3)&nbsp;Data Preparation for Data Mining&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+	
+
+
+	<p><b>Section Eighteen: Scripting</b></p>
+	<li><p><a href="#18.1"><span class="glyphicon glyphicon-link"></span>&nbsp;18.1)&nbsp;Script Task in the Control Flow
+	&nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#18.2"><span class="glyphicon glyphicon-link"></span>&nbsp;18.2)&nbsp;Script Component in the Data Flow
+	&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#18.3"><span class="glyphicon glyphicon-link"></span>&nbsp;18.3)&nbsp;Custom Tasks and Components
+	&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+	
+	<p><b>Section Nineteen: Cleaning Data by Identity Mapping and De-duplicating</b></p>
+
+	<li><p><a href="#19.1"><span class="glyphicon glyphicon-link">		
+	</span>&nbsp;19.1)&nbsp;What is Identity Mapping & De-Duplicating? &nbsp;</a>
+	</p></li>
+
+	<li><p><a href="#19.2"><span class="glyphicon glyphicon-link">
+	</span>&nbsp;19.2)&nbsp;DQS Cleansing & Matching&nbsp;</a>
+	</p></li>	
+
+	<li><p><a href="#19.3"><span class="glyphicon glyphicon-link">
+	</span>&nbsp;19.3)&nbsp;SSIS Fuzzy Transformations&nbsp;</a>
+	</p></li>	
+
+	<hr class="ex">
+
+
+
+	</ul>
+	</div>
+
+</div>
+
+<br></br>
+
+
+<div id="0">
+<hr class="ex">
+<h4 style='color:green'>&nbsp;70-463 Requirements</h4>
+<hr class="ex">
+
+<div>
+	
+	<p>I would recommend watching the following video below before you begin 70-463.</p><br/>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/YQqW70EPbbg" frameborder="0" allowfullscreen></iframe>
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+<div id="1.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section One: The Logical Data Warehouse</h3>
+<hr>
+
+<br/>
+<hr class="ex">
+<h4 style='color:green'>1.1)&nbsp;The Star & Snowflake Schema</h4>
+<hr class="ex">
+
+<div>
+	<p>This section pertains to the logical requirements when designing a data warehouse.</p>
+	<ul>
+
+	<li><b>Star what...? </b>The star schema is in many ways the de facto standard for logical data warehouse design.
+		Its name is drawn from the formation of the tables included in its schema: a single fact table at the centre and
+		several dimension tables surrounding it as illustrated below.
+		</br><img src='./imgs/star.gif'>
+	</li></br>
+
+	<li><b>What is a fact table?</b> A fact table is connected to all dimensions via foreign keys. Occasionally, all foreign keys in the the fact table when combined uniquely identify a row in the table. But this is not a requirement as a surrogate/simpler key can be used to serve the same purpose. 
+
+	</br></br>
+	<a href='http://searchdatamanagement.techtarget.com/definition/fact-table' target='_blank'>More Details here on Fact Tables</a>
+	</li></br>
+
+	<li><b>But why call it a fact table?</b>Consider a single row in a fact table and then it is possible to form a proposition from this row. Example patient A had operation B performed on Date D for a duration of E. Ergo such a proposition is a fact. </li></br>
+
+	<li><b>So in a data warehouse there is <b>only one</b> star schema? </b>No there are multiple star schemas in a data warehouse and the power of the star schema comes from the interconnectness of the dimensions in each star schema. This interconnectness is more formally defined as shared or conformed dimensions. An analogy for this is the cogset on a bicycle with multiple gears. They are all interconnected and give the bicycle much more robustness by allowing it to switch between the gears.</br>
+	<img src='./imgs/cogset.jpg' height="200" width="200">
+	</li></br>
+
+	<li><b>Does the number of dimensions in a fact table matter?</b> Yes the number of dimensions is a measure of the granularity of analyis available. This is also called the granularity of a Star schema.
+	</li></br>
+
+	<li><b>What is a snowflake schema then?</b> The snowflake schema is similar to the star schema in that it has a central fact table. But where it differs is in the way that the dimensions tables are normalized. In the snow flake schema the dimension tables are closer to a normalized database in that some dimensions have a foreign-key that is used as a reference to a lookup table. This lookup table may have a foreign key that is used to reference a second-level lookup table. </br></br>
+	<img src='./imgs/snowflake.jpg'>
+	</li></br>
+
+	<li><b>When should I use a star schema or a snowflake schema?</b> The snowflake schema is more suitable for small proof of concept projects where you can transition from an OLTP normalized schema to data warehouse snowflake schema quickly. For a long term data warehouse solution, a star schema is more suitable. It is standardized and narrative; you can find the information you need quickly as it is simpler and faster to query by requiring fewer joins.
+	</li></br>
+
+
+
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="1.2">
+<hr class="ex">
+<h4 style='color:green'>1.2)&nbsp;Dimension Tables</h4>
+<hr class="ex">
+
+<div>
+	<ul>
+
+	<li><b>What is a dimension table? </b>A dimension table stores the attributes belonging to a foreign key in the
+		fact table. For example if a foreign key in the fact table refers to a patient's ID and in a dimension table that
+		stores patient diagnoses called dimDiagnoses, by following this patient ID from the fact table to dimDiagnoses
+		we can identify all diagnoses for this patient. <b>In this way dimensions give context to measures.</b>
+		<br><br>
+		Reference: <a href='http://searchdatamanagement.techtarget.com/definition/dimension-table' target='_blank'>More Info Here</a>
+	</li>
+
+	<br><br>
+
+	<li><b>So does a dimension table contain only attribute columns?</b>
+		No a dimension table can contain different column types. As mentioned in the example above they must contain a key to 
+		identify each row. But also may contain the following column types:
+		<br><br>
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        		<th>Dimension Column Type</th>
+        		<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			<tr><td><i>Attributes</i></td><td>The most important column type, used for pivoting.</td></tr>
+			<tr><td><i>Lineage Columns</i></td><td>For auditing, never revealed to end users.</td></tr>
+			<tr><td><i>Member Properties</i></td><td>For labelling on reports.</td></tr>			
+			<tr><td><i>Name Columns</i></td><td>For naming entities.</td></tr>
+			<tr><td><i>Keys</i></td><td>As mentioned above for naming entities.</td></tr>
+			</tbody>
+
+		</table>
+		
+	</li>
+
+
+<br><br>
+
+	<li><b>Attributes can form hierarchies?</b>	
+	Hierarchies are important in that they provide a drill-down feature for users to navigate through the data. In Star Schemas natural hierarchies can be extracted from the names and contents of columns. Snowflakes schemas make it easier to identify hierarchies by following the lookup tables. 			
+	</li>
+
+	<br/><br/>
+
+	<li><b id='scd_intro'>Making History, the Slowly Changing Dimensions (SCD) Problem</b>	
+	Maintaining history is one of the requirements of a data warehouse. If a customer moves address, should all of their existing
+	records be updated to reflect the new address (SCD Type 1)? Or should the existing records be kept intact with the old address and
+	a new row added to handle the new address (SCD Type 2)? Or finally should the existing rows be expanded by adding new columns to show when 
+	the patient started living in the old address and moved to the new address (SCD Type 3)? Which SCD type is used depends on the requirements for the data warehouse. 
+	<br/><br/>
+	<img src='./imgs/SCD.png' class="img-rounded"  height='300' width='400'>
+
+	</li>
+
+
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+<br/><br/><br/>
+
+
+<div id="1.3">
+<hr class="ex">
+<h4 style='color:green'>1.3)&nbsp;Fact Tables</h4>
+<hr class="ex">
+
+
+<ul>
+
+	<li><b>What are the column types in a Fact Table?</b>&nbsp;There are less column types in a Fact table than in a dimension table. The most 
+	important fact column type is a Measure.  
+	<br/><br/>
+
+		<table class="table table-condensed">	
+			<thead>
+      		<tr>
+        		<th>Fact Column Type</th>
+        		<th>Details</th>        
+      		</tr>
+    		</thead>
+
+    		<tbody>		
+				<tr><td><i>Keys</i></td><td>Mainly foreign keys from the dimension tables both can include business key too from the primary source table.</td></tr>
+				<tr><td><i>Lineage Columns</i></td><td>As per dimension tables, for lineage and never exposed to end users.</td></tr>
+				<tr><td><i>Measures</i></td><td>The most important column type, usually numeric so they can be aggregated on.</td></tr>			
+				
+			</tbody>
+
+		</table>
+		
+	</li>
+
+	<br/><br/>
+
+	<li><b>Additivity of Measures</b></b>&nbsp;
+		At first this is a tricky concept to grasp. But through examples it becomes much clearer. There are
+		three types of additivity: Additive, Semi-Additive and non-Additive.<br/><br/>
+
+		<b>&nbsp;&nbsp;&nbsp;Additive Measures:</b>&nbsp;These measures can be summarised across all dimensions e.g. Product sales<br>
+		<b>&nbsp;&nbsp;&nbsp;Semi-Additive Measures:</b>&nbsp;Measures that can be aggregated over all dimensions except time dimension are semi-additive e.g. bank account balance.<br>
+		<b>&nbsp;&nbsp;&nbsp;Non-Additive Measures:</b>&nbsp;Prices and percentages are examples of non-additive measures. They are not additive over any dimension.<br>
+
+		<br><br>
+
+		Reference: <a href='http://www.1keydata.com/datawarehousing/fact-table-types.html' target='_blank'>
+		More Info Here On Additive Measures</a>
+	</li>
+
+</ul>
+
+<br><br>
+
+
+<span class="glyphicon glyphicon-facetime-video"></span>&nbsp;
+<h4>
+The embedded video below from <a href='https://mva.microsoft.com/en-US/training-courses/implementing-a-data-warehouse-with-sql-server-jump-start-8257?l=KtvLHdKy_7204984382 target='_blank'>
+Microsoft Virtual Academy</a> re-iterates a lot of the content in this section and is very useful.</h4>
+
+<iframe src="https://mva.microsoft.com/en-US/training-courses-embed/implementing-a-data-warehouse-with-sql-server-jump-start-8257/Design-and-Implement-Dimensions-and-Fact-Tables-KtvLHdKy_7204984382" width="636" height="480" allowFullScreen frameBorder="0"></iframe>
+
+<br/><br/>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+<br/><br/><br/>
+
+<div id="2.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Two: The Physical Data Warehouse</h3>
+<hr>
+
+<p>
+	Section one encompassed the logical elements of implementing a data warehouse. This section, section two, looks at the physical elements of implementing a data warehouse.
+</p>
+
+<hr class="ex">
+<h4 style='color:green'>2.1)&nbsp;Physically Implementing Dimension & Fact Tables</h4>
+<hr class="ex">
+
+<div>
+	
+	<b><u>The Data Warehouse (DW) Database</u></b><br/>
+	
+	<img src='./imgs/Data_warehouse.png' class='ex'/>
+
+	<p>
+	First things first the database to house the data warehouse has to be created. 
+	In doing so the following has to be considered:
+	</p>
+
+	<ul>
+			<li>What recovery model should be used? 
+			<br/>The DW contains read-only data and there is no requirement to backup the transaction log so the most appropriate recovery model is the Simple Recovery model.</li>
+			
+			<li>Autoshrink and autogrowth...do I leave these on? 
+			<br/>Both of these should be switched off and the database should be sized appropriately to allow for future growth.</li>
+	</ul>
+
+	<br/>
+	<b><u>Implementing the Dimension Table</u></b><br/>
+
+	<p>
+		If you are supporting Type 2 SCD in your dimension table, this will impose additional requirements to facilitate this, namely:
+	</p>
+	<ul>
+		<li>Surrogate Keys (use identity or sequences to generate these)</li>
+		<li>A current row flag column or two date validity columns are also required</li>	
+	</ul>
+	<p>
+		In addition computed columns can be used to discretize continuous values in source columns.
+	</p>
+
+	<br/>
+	<b><u>Implementing the Fact Table</u></b><br/>
+	<p>
+	As Fact tables are on the many side of the fact to dimension relationship, they should be implemented after dimensions. This facilitates the creation of foreign key constraints. Columns in a fact table include foreign keys from the dimension tables and measures. It is recommended that you partition a large fact table to improve maintenance and performance.
+	</p>
+	
+	<br/>
+
+	<img src='./imgs/fact_table.png' class='ex'/>
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+<div id="2.2">
+<hr class="ex">
+<h4 style='color:green'>2.2)&nbsp;Data Warehouse (DW) Performance</h4>
+<hr class="ex">
+
+<div>
+	
+	<p>
+		Invariably Data Warehouses are large and contain a lot of data. This volume of data can present performance problems if not properly indexed and compressed. This section details some of the indexing techniques to adopt in the DW and how to avail of compression features. Before embarking on indexing and compression though it is worthwhile reviewing all DW queries. There is usually scope for improvement here by using appropriate query techniques.
+		
+	</p>
+
+	<b><u>Indexing DW Tables</u></b>
+	<br/><br/>
+
+	<img src='./imgs/clustered_index.gif' class='ex'>
+	<br/>
+
+	<p>
+
+		<ul>
+			<li>Every table should have a clustered index. </li>
+			<li>DW surrogate keys are very suitable candidates for a clustered index.</li>
+			<li>An integer autonumbering surrogate is key is best if possible. If unsure what column to choose, <a href='#16.3'>use the SSIS Data Profiling Task</a></li>
+			<li>Give careful consideration to non-clustered indexes, DW queries are not very selective so may not benefit from them</li>
+
+		</ul>
+
+	indexed Views are one of those features that when they work are very powerful. But there are two main caveats with using indexed views: 
+		
+		<br/>1) Are they supported in the version of 
+		<a href='https://msdn.microsoft.com/en-ie/library/cc645993(v=sql.110).aspx' target='_blank'>SQL Server being used</a>?
+		<br/>2) Does the query you want to wrap in an indexed view meet all pre-requisites (there are a lot)?
+
+	</p>
+
+	<br/>
+
+	<b><u>Columnstore Indexes</u></b>
+	<br/><br/>
+
+	<img src='./imgs/column_store_indexes.jpg' class='ex'>
+	<br/><br/>
+
+	<p>
+		Columnstore indexes can provide a dramatic improvement in DW queries. At first they can be difficult to understand coming from a row-based index. <a href='http://www.slideshare.net/JasonSStrate/introduction-to-columnstore-indexes' target='_blank'> There is an excellent primer on columnstore indexes here.</a> There are some restrictions with columnstore indexes:
+
+		<ul>
+
+			<li>Tables containing them become read-only, so not recommended for tables with frequent updates.</li>
+			<li>Only one is permitted per table</li>
+			<li>When partitioned, columnstore indexes must be partitioned aligned</li>
+
+		</ul>
+
+		It is recommended that a columnstore index should be created on fact table by putting all columns in the index. Large dimension tabls can benefit from columnstore indexes as well.
+	</p>
+
+
+	<b><u>Data Compression</u></b>
+	<br/><br/>
+
+	<img src='./imgs/db_compression.png' class='ex'>
+
+	<br/><br/>
+	<p>
+		As per indexed views, compression is very much SQL Server edition based and in SQL 2012 it is 
+		<a href='https://msdn.microsoft.com/en-ie/library/cc645993(v=sql.110).aspx' target='_blank'>very much confined to enterprised edition.</a> But if Enterprise Editions is available to you the following compression features can be availed of. Due to the decompress and then re-compress requirements when updating data, compression not very optimal for OLTP databases. However DW's are mostly read and are therefore a lot can be gained from activating compression in a data warehouse.
+
+		<br/>
+
+		<ul>
+
+			<li><b>Row Compression:</b>&nbsp;Stores fixed length data type columns in a variable length format.
+			</li>
+			
+			<li><b>Page Compression:</b>&nbsp;Includeds row compression just mentioned, but also includes prefix and dictionary compression.
+			</li>
+
+			<li><b>Unicode Compression:</b>&nbsp;Unicode uses 2-bytes per character, compression halves this by using 1-byte per character.
+			</li>
+			
+		</ul>
+
+		The compressions are cumulative, page includes both row and unicode compression and row includes unicode compression.
+	</p>
+
+
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+<div id="2.3">
+<hr class="ex">
+<h4 style='color:green'>2.3)&nbsp;Partitioning</h4>
+<hr class="ex">
+
+<div>
+	
+	<img src='./imgs/partition.jpg' height='400' width='600' class='ex'/>
+
+	<p>	
+		Partitions help to mitigate the problems involved in inserting, updating or deleting data with large fact table. By partitioning the table separate sections can be operated on at a time without impacting the entire table. As per the recommendation for adding columnstore indexes on large fact tables, these tables should also be partitioned. 
+
+		<br/><br/>
+
+		Partition concepts are explained below:
+
+		<ul>
+
+			<li><b>Partition Function:</b> Logical operation, which partition should a row be mapped to. The partitioning column is usually used to determine this.
+			</li>
+
+			<li><b>Partition Scheme:</b> Physical operation, which filegroup should a partition be saved onto.
+			</li>
+
+			<li><b>Partition Switching:</b> Switches a block of data from one table or partition to another table or partition. <a href='https://technet.microsoft.com/en-us/library/ms191160(v=sql.105).aspx' target='_blank'>
+			More Details Here</a>
+			</li>
+
+			<li><b>Partition Elimination</b> This is a query optimizer technique where partitions can be eliminated from a query which helps avoid length table scans.
+			</li>
+
+			<li><b>Index Alignment:</b> This is where indexes are partitioned on the same partition scheme as their base tables. Columnstore indexes must be aligned with their base tables.
+			</li>
+
+		</ul>
+
+	</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+<br><br>
+
+
+
+<div id="3.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Three: <b>C</b>onnection managers, <b>C</b>ontrol flow, <b>C</b>ontainers and precedence <b>C</b>onstraints.</h3>
+<hr>
+
+<hr class="ex">
+<h4 style='color:green'>3.1)&nbsp;Connection Managers</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+	<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        		<th>Connection Manager</th>
+        		<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr><td><i>ADO.NET</i></td><td>Connects to data stores using .NET provider. Use this connection manager when connecting to SQL Server stored procedures over OLE DB. It allows you to use parameter names in queries and has support for more data types e.g. XML, Binary etc.
+			</td></tr>
+			<tr><td><i>Flat File</i></td><td>Connects to flat files with delimited (CSV) and fixed width supported.</td></tr>
+			<tr id='use_odbc'><td><i>ODBC</i></td><td>Supports the ODBC specification. <b>This is important as Microsoft has announced it is replacing support for OLE DB with ODBC.</b></td></tr>			
+			
+			</tbody>
+
+		</table>
+		
+		<br/>
+
+		<p><b>Connection Manager Scope</b> There are two options Package-Scoped and Project-Scoped connection managers. A lot like <a hef=''>variables scope</a> the former are only available in the context of the SSIS package in which they are created and cannot be used outside of this.<br/>
+		The latter, Project-scoped connection managers, are available to all packages within the project.
+		</p>
+
+		<p><b>32-bit versus 64-bit Data Providers</b> In a production environment, the version of data provider used is determined by the underlying operating system. However the development environment is a 32-bit environment. It is also important to note that some
+		data providers do not have both a 32-bit and 64-bit version.
+		</p>
+
+		<p><b>Parameterization</b> Parameterize,Parameterize,Parameterize! Any setting that is environment dependent should be parameterized.
+		In the current context connection strings should be parameterized including the initialCatalog and instance/server name.</p>
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+<div id="3.2">
+<hr class="ex">
+<h4 style='color:green'>3.2)&nbsp;Control Flow Tasks & Containers</h4>
+<hr class="ex">
+
+<div>
+	<p>
+		<b>Control flow tasks</b> represent the operations performed in a control flow. Each control flow task represents a single logical operation. Tasks can be grouped based on the functionality they provide:
+	</p>
+
+	<ul>
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        		<th>Task Type</th>
+        		<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr><td><i>WorkFlow Tasks</i></td>
+			<td>As the name implies these tasks enable workflow for example the execute package task, 
+			<a href='link_here'>as explained below</a></td>
+			</tr>
+
+			<tr><td><i>Analysis Services Tasks</i></td>
+			<td>If you have SSAS databases, these tasks help with the administration of SSAS objects. An example task here is the Data Mining Query Task.</td>
+			</tr>
+
+			<tr><td><i>Data Movement Tasks</i></td>
+			<td>The most important task in this group bar none is the Data Flow task which is discussed thoroughly <a href='link_here'>in the next section.</a></td>
+			</tr>
+
+			<tr><td><i>Data Preparation Tasks</i></td>
+			<td>In some scenarios data has to be prepared prior to processing for example file has to be copied into a loading area from on destination server using the file system task.</td>
+			</tr>
+
+			<tr><td><i>SQL Serer Maintenance Tasks</i></td>
+			<td>Backing up databases, Shrink Database Task(avoid!), Rebuild Index Task all of these maintenance plans can be implemented in SSIS packages.</td></tr>
+
+			<tr><td><i>SQL Server Administration Tasks</i></td>
+			<td>Transfers are the order of the day for this group. For example Transfer Database Task, Transfer Logins Task etc</td>
+			</tr>
+			
+			
+								
+			</tbody>
+
+		</table>
+
+		<p>
+		<b>Containers</b> are a lot like classes in object oriented (OO) programming and a lot of the same concepts from OO apply to containers.
+		For instance the concept of encapsulation, all tasks and variables in a container serve a single purpose and are executed in accordance 
+		with that purpose without any dependencies on other objects, everything is encapsulated within the container.
+
+		<br/><br/>
+		There are three types of containers in SSIS.<br/><br/>
+
+		<b>1)&nbsp;ForEach Loop:</b>&nbsp;Enumerate! This container is used for operating over an enumerable collection of items e.g. files in a folder.
+		<br/><br/><br/>		
+		<img src='./imgs/foreach.JPG'>
+		<br/><br/><br/>		
+
+		<b>2)&nbsp;For Loop:</b>&nbsp;Similar to a for loop in most programming languages this container executes tasks repeatedly while loop condition is satisfied.
+		<br/><br/>
+
+		<b>3)&nbsp;Sequence:</b> &nbsp;A bit like a database schema used to group tables and views together the sequence container has no programmatic logic other than to group tasks together that encapsulate a logical unit.<br/>
+		<br/>
+		</p>
+
+
+		
+	</ul>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+<div id="3.3">
+<hr class="ex">
+<h4 style='color:green'>3.3)&nbsp;Precedence Constraints</h4>
+<hr class="ex">
+
+<div>
+	<p> 
+		Which task gets executed first and if it succeeds which gets exeuted next or if it fails what happens next? To this end an object called
+		a precedence constraint can be used. A precedence constraint is effectively a connector between two distinct tasks that is used to determine what happens next once the first task has completed.
+	</p>
+
+	<ul>
+		There are three types of precedence constraint:<br/>
+		<li>Success: If the preceding task completed WITHOUT error then the following task will be executed.</li>
+		<li>Failure: If the preceding task completed WITH error then the following task will be executed.</li>
+		<li>Completion: The following task is always executed irrespective of the status of the preceding task.</li>
+	</ul>
+
+	<br/>
+	<img src='./imgs/precedence_constraints.png' height='400' width='400'/>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+
+<div id="4.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Four: All About Data Flow: Data Sources, Transformations and Destinations.</h3>
+<hr>
+
+<p>
+A data flow is essentially a data flow engine that provides the Extract, Transform and Load functionality of SSIS. It utilises an in-memory buffer
+oriented architecture to move data from a source and then depending on requirements through a transformation to a destination.
+
+<br/><br/>
+<a href='https://msdn.microsoft.com/en-us/library/ms170419.aspx' target='_blank'>
+This hands on tutorial is very useful as it goes through all of the major parts of this section.</a>
+
+</p>
+
+<hr class="ex">
+<h4 style='color:green'>4.1)&nbsp;Data Flow Source Adapters: The E in ETL</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>In any ETL process data has to be extracted from various sources. These sources can be in multiple formats so to extract data from these disparate formats there are different flavours of data source adapters as shown in the table below.</p>
+
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Source Adapter</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>CDC</i></td>
+				<td>New in SQL 2012, it only retrieves changed data from an insert/update/delete operation. It uses ADO.NET connection provider.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>ODBC</i></td>
+				<td> New in SQL 2012, it uses native ODBC connections. (<a href='#use_odbc'>As mentioned previously, Microsoft is moving towards ODBC for relational database access over OLE DB.</a>)</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Raw File*</i></td>
+				<td>Very fast for reading data. Raw File is the SSIS native data format requiring no translation and minimal parsing.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>XML*</i></td>
+				<td>Extract from an XML file using schema to define that data involved.</td>
+			</tr>			
+
+			<tr>
+				<td><i>ADO.NET</i></td>
+				<td>Source from tables or queries using ADO.NET.</td>
+			</tr>			
+
+			<tr>
+				<td><i>Flat File Source</i></td>
+				<td>Extract data from delimited or fixed width files using this data source adapter. There is an option available with this provider to speed up flat file data extraction. 
+				This option is called <b>Fast Parse</b>, it is available on the column level only and it can be used when there is no requirement to parse locale sensitive data.
+				</td>
+			</tr>	
+
+			</tbody>
+
+		</table>
+
+		<p><i>* These adapters do not use package or project connections.</i></p>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="4.2">
+
+<hr class="ex">
+<h4 style='color:green'>4.2)&nbsp;Data Flow Transformations: The T in ETL</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			<a href='https://msdn.microsoft.com/en-us/library/ms141713.aspx' target='_blank'>
+			As defined here:</a> SQL Server Integration Services transformations are the components in the data flow of a package that aggregate, merge, distribute, and modify data. Transformations can also perform lookup operations and generate sample datasets.
+		</p>
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Transformation Type</th>
+        			<th>Example</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Logical Row-Level</i></td>
+				<td>Derived Column transformations are used quite frequently as they facilitate the creation of new columns from other columns, variiables or parameters.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Multi-Input/Multi-output</i></td>
+				<td>Merge Join: Two sets are combined together with this transformation based on defined joined column(s). Both sets have to be sorted in advance.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Multi-Row</i></td>
+				<td>Aggregate As the name implies groups rows together and provides an aggregate function in the process e.g. MAX, MIN</td>
+			</tr>		
+
+
+			<tr>
+				<td><i>Advanced Data Preparation</i></td>
+				<td>DQS Cleansing: This transformation is used to cleanse data by referencing it against a knowledge base.</td>
+			</tr>		
+			
+			</tbody>
+
+		</table>	
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="4.3">
+
+<hr class="ex">
+<h4 style='color:green'>4.3)&nbsp;Data Flow Destination Adapters: The L in ETL</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			The data has been sourced, transformed and now has to be loaded into another location. For this purpose a data flow destination adapter can be used.
+		</p>
+
+		
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Data Destination Adapter</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Raw File</i></td>
+				<td>As this is the native SSIS format, this destination is used mainly as a staging area.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>ODBC Destination</i></td>
+				<td>New in 2012, two facilities for loading available: row-by-row or batch. The latter is very useful in data warehousing environments where large volumes of data are loaded, the only caveat being that the destination has to be compatible.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>ADO.NET Destination</i></td>
+				<td>Load data via ADO.NET provider.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Data Mining Model Training</i></td>
+				<td>If there is a requirement to load data into a data mining model in SSAS this provider can be used.</td>
+			</tr>			
+
+
+			</tbody>
+
+	</table>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="4.4">
+
+<hr class="ex">
+<h4 style='color:green'>4.4)&nbsp;Lookup Transformations</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		<a href='https://msdn.microsoft.com/en-us/library/ms141821.aspx'>
+		The Lookup transformation performs lookups by joining data in input columns with columns in a reference dataset.
+		</a>
+		It is similar to a join in that it matches two sets based on one or more columns.
+		There are some differences however in that the lookup returns only one matching row in cases where there are multiple matching rows.
+		The main use case for a lookup transformation is acquiring a Dimension table primary key and other columns when populating a Fact table.
+		In this scenario the Dimension table is the reference dataset.
+		</p>
+		<br/>
+		<p>
+		The lookup transformation usually loads all of the required rows from the reference dataset into memory/cache. How it does this depends on the cache mode setting that has been selected (this is the most important setting of the Lookup transformation):
+		</p>
+
+		<li>No Cache: Avoid! Last matched row is stored in cache so each row imposes a read from reference dataset.</li>		
+		<li>Partial Cache: Works like a web browser. Any rows that are not cached are added to the cache once read from reference dataset.</li>	
+		<li>Full Cache: This is the default mode and should be used when possible. In pre-exeute phase the entire reference dataset is loaded into memory. The only caveat is to ensure that there is enough memory to hold the entire reference dataset, it does not swap to disk if memory is exceeded but instead simply fails. </li>	
+
+		<br>
+		<img src='./imgs/cachemode.jpg'>
+
+		<br/><br/>
+		<p>Listed under Connection Type in the image above /\ is the <a href='https://msdn.microsoft.com/en-us/library/bb895290.aspx'>Cache Connection Manager</a> and is very useful to use with the lookup transformation as it allows lookups against more than just OLE DB sources. To populate a Cache Connection Manager requires a Cache Transform Transformation connecting to a data source. Another benefit is that the Cache Connection Manager can be declared at the project level and this enables re-use and sharing amongst lookups in a project.
+		</p>
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+
+<br/><br/><br/>
+<br/><br/><br/>
+
+<h4 style='color:green'>Recap!&nbsp;Lesson 1: Create a Project and Basic Package with SSIS</h4>
+<hr class="ex">
+<span class="glyphicon glyphicon-link"></span>&nbsp;<a href='https://msdn.microsoft.com/en-us/library/ms170057.aspx' target='_blank'>
+This step-by-step tutorial goes through most of the content from the previous sections</a>
+<hr class="ex">
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+<div id="5.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Five: Variables, Expressions and Master Packages</h3>
+<hr>
+
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>5.1)&nbsp;Using SSIS Variables</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>As per all programming languages variables stored values and in SSIS it is no different they are used to store values derived at runtime and help to promote re-use. Variables can be system variables or user variables. System variables are read-only as they are set by SSIS. From an SSIS developers perspective User-Defined variables are more interesting as they can be set by the developer.
+		</p>
+
+		<p><b><a href='https://msdn.microsoft.com/en-us/library/ms141085.aspx' target='_blank'>Properties</a></b> Some of the following properties can be set per variable.</p>
+		<li><b>Name</b> Required - variable name.</li>
+		<li><b>Data Type</b> <a href='#data_type'>Expanded below</a>, the type of the variable.</li>
+		<li><b>Scope</b> <a href='#variable_scope'>Expanded below</a>, 
+		scope is important in determining where variable will be available within a package.</li>
+
+		<li>
+		<b id='RaiseChangeEvent'>RaiseChangeEvent</b>
+		This property is used extensively in logging and troubleshooing, a Boolean value determining whether an event is raised when the value of the variable changes.
+		</li>
+
+		<br/>
+
+		<img src='./imgs/add_variable.png'>
+
+		<br/>
+		<p id='data_type'><b><a href='https://www.simple-talk.com/sql/ssis/ssis-basics-introducing-variables/' target='_blank'>Data Types</a>
+		</b> 
+		Some of the data types available to SSIS variables.</p>
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Data Type</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Object</i></td>
+				<td>This is an important type. It is the base type from which all other types are inherited. As a result it can be used
+				to store unsupported types in an SSIS variable.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Boolean</i></td>
+				<td>True/False</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>String</i></td>
+				<td>Unicode Character Strings</td>
+			</tr>			
+			
+			</tbody>
+
+</table>
+		
+		<br/>
+
+		<p id='variable_scope'>
+		<b>Variable Scope</a></b> The accessibility and visibility of an SSIS variable is based on its scope which can be one of three settings:
+		</p>
+		<li><b>1)&nbsp;Package Scoped:</b>
+		&nbsp;The default scope for all newly declared variables. Variables declared at this level can be considered 
+		global and therefore accessible to all objects within the package.</li>
+
+		<li><b>2)&nbsp;Container Scoped:</b>
+		&nbsp;Accessible to objects within the container only.
+		</li>
+
+		<li><b>3)&nbsp;Task Scoped:</b>
+		&nbsp;Only accessible to the particular task the variable is declared in.</li>
+		
+		
+		<br/>
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="5.2">
+
+<hr class="ex">
+<h4 style='color:green'>5.2)&nbsp;Expressions</h4>
+<hr class="ex">
+
+<div>
+
+
+	<ul>
+
+		<p>
+			An expression is a combination of constants, variables, parameters, column references, expresssion functions and/or
+			expression operators allowing you to prescribe at design time how a value will be determined at runtime. In SSIS, expressions
+			are written in a special proprietary language similiar to C++ that provides a set of operators and functions to implement most expression requirements.
+			
+		</p>
+
+		<br/><br/>
+
+		<li>The Expression Operators consist of the usual operators required in most programming languages e.g. +,-, !=.</li>		
+		<li>However there is one important operator that is used quite frequently in ETL: converting from one data type to another.</li>	
+		<li>This is done using the following expression syntax (type_spec)(Data type Cast)</li>
+		<li>The type_spec is a Data Flow Buffer data type and what follows it is the value that needs to be converted.</li>
+		<li>This example converts 3.57 from numeric to a 4-byte signed integer: (DT_I4) 3.57 
+		[<a href='https://msdn.microsoft.com/en-us/library/ms141704.aspx' target='_blank'>Reference here</a>] </li>
+	
+		<br/><br/>
+		<p>Below are some of the function groups and their examples in SSIS expressions:</p>
+		<br/>
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>SSIS Expression Function Group</th>
+        			<th>Example</th> 
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Maths</i></td>
+				<td>SQRT</td>
+				<td>Retrieves the square root of a value </td>
+			</tr>
+
+			<tr>
+				<td><i>String</i></td>
+				<td>CODEPOINT</td>
+				<td>Unicode value of leftmost character in a string (use case?)</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Date</i></td>
+				<td>Year</td>
+				<td>Returns year of specified date</td>
+			</tr>
+
+			<tr>
+				<td><i>NULL</i></td>
+				<td>NULL</td>
+				<td>Returns a NULL value of a requested data type*</td>
+			</tr>
+
+
+			</tbody>
+
+		</table>
+		<br/>
+		*Note this function it operates in a similar way to the convert operator mentioned above e.g. NULL(DT_I4) will store
+		a NULL inside a 4-byte signed integer column.
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+<div id="5.3">
+
+<hr class="ex">
+<h4 style='color:green'>5.3)&nbsp;Property Parameterization</h4>
+<hr class="ex">
+
+<div>
+	
+	Use p.251 for this and take notes from 3:3 and 6:2 mentioned on this page.
+	Mention that as per p.254 that typically Connection Managers, Tasks & components and Data Flow Tasks
+	are parameterized.
+
+	<ul>
+
+		<p></p>
+
+		<li></li>		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+<div id="5.4">
+
+<hr class="ex">
+<h4 style='color:green'>5.4)&nbsp;Master Package Concept</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>As noted this is a concept or methodology for developing SSIS projects. It is facilitated by the
+		Workflow Task, Execute Package, which can be used to execute other SSIS packages. Arguably the same can be achieved by using the Execute SQL Server Agent Job Task or Execute Process Task however they provide a lot less functionality and error handling.
+
+		The master package concept promotes the software engineering concept of functional decomposition: breaking an SSIS project into smaller atomic packages and calling and controlling these from a single master package.
+
+		</p>
+
+		<p>The Execute Package Task is labelled the parent package and it calls child packages. The child packages can be parameterized in two ways:
+		</p>
+		<li><b>Package Configurations:</b> Variables in the child packages can be referenced by parent package. Variable names must match.</li>		
+		<li><b>Parameters:</b>Project Deployment model only, this involves mapping parent parameters to child parameters.</li>		
+		
+		<img src='./imgs/execute_package_task.jpg'>
+		
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+
+
+<div id="6.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 6: Enhancing the Data Flow</h3>
+<hr>
+
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>6.1)&nbsp;The Slowly Changing Dimensions Requirement </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p><b><u>Inferred Dimension Members</u></b></p>
+		<p>A bit like which came the first the chicken or the egg, records can arrive in a data warehouse fact table with no matching record in any of the dimension tables. Specifically the source business key for this record has not yet been loaded into one of the dimension tables.
+		This problem is known as the late-arriving-dimensions or early-arriving-facts problem and has to be handled. This can be done via inferred dimension members in the following way: 
+		<br/><br/>
+		
+		1) When this record arrives in the fact table, insert a dummy or inferred record in the dimension table with this source business key, surrogate key and a flag field to denote that this is an inferred member.<br/><br/>
+		2) Using the surrogate key assign it to the record in the fact table<br/><br/>
+		3) Then when loading the dimension table that this record belongs to check for inferred members, update all records accordingly and clear the inferred member field.<br/><br/>
+		</p>
+
+		<br/>
+
+
+		<p><b><u>Slowly Changing Dimensions</u></b></p>
+
+		Slowly Changing Dimensions <a href='#scd_intro'>was mentioned above</a> and like inferred members these have to be handled in the data warehouse as well. In SSIS there is a Slowly Changing Dimension transformation available the only caveat being that it is only useful for small dimensions preferably less than 10,000 rows.<br/>
+		
+		<br/>
+		<img src='./imgs/scd_wizard.jpg' height='300' width='300'>
+		<br/><br/>
+
+		Bearing this in mind a set based solution is more preferable and the following could be used to maintain SCD's:
+		<br/><br/>
+		1) Check whether the attributes from the source row have changed via a computed column that will maintain the aggregate value of the entire row e.g.hashbytes column containing the hash value of the row.
+		<br/><br/>
+		2) Denote which rows are Type 1 SCD and which are Type 2 SCD
+		<br/><br/>
+		3) In the case of Type 1 SCD apply the update, Type 2 set the Valid To Field to current date time and then insert new row for current values.<br/>
+
+		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="6.2">
+
+<hr class="ex">
+<h4 style='color:green'>6.2)&nbsp;How To Incrementally Load A Fact Table</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>Hopefully when loading a fact table in your data warehouse, you are lucky enough to have a column available to select based on a specific data range or a means of doing so on a sliding, overlapping window. 
+		If neither of these options are available then an alternative approach is to use the Change Data Capture (CDC) functionality <a href='https://www.simple-talk.com/sql/learn-sql-server/introduction-to-change-data-capture-cdc-in-sql-server-2008/' target='_blank'> introduced in SQL Server 2008.</a>.<br/><br/>
+
+		<img src='./imgs/cdc.jpeg'>
+		
+		<br/><br/>
+		Unfortunately at present CDC is <a href='https://blogs.msdn.microsoft.com/ialonso/2012/03/09/whats-in-enterprise-only-change-data-capture/' target='_blank'>only available in enterprise editions of SQL Server</a>
+		so an absolute final alternative may be to read the whole dataset each time.
+		</p>
+
+		<br/><br/>
+
+		<b><li>How Do I Enable CDC?</li></b>
+		CDC has to be enabled on the database. Then it can be enabled per table in the same database that you want to track changes for. Before enabling CDC, ensure that the SQL Server Agent is available and running on the database
+		instance. This is because CDC creates two jobs inside the SQL Server Agent.
+		<br/>
+		<a href='https://msdn.microsoft.com/en-us/library/cc627369.aspx' target='_blank'>Sample is provided here on how to do this</a>
+
+		<br/>
+		<img src='./imgs/cdc_enable.png'/>
+
+
+		<br/><br/>
+
+		<b><li>What Is Generated in the Database When I Enable CDC?</li></b>
+		After CDC has been enabled in the database, as well as the SQL Server Agent Jobs being created a CDC schema is created and some system tables next:<br/><br/>
+
+		<kbd>-&nbsp;cdc.change_tables: </kbd>&nbsp;&nbsp;List the tables in the database have been enabled for CDC.<br/>
+		<kbd>-&nbsp;cdc.captured_columns: </kbd>&nbsp;&nbsp;Which columns are being captured?<br/>		
+		<kbd>-&nbsp;cdc.ddl_history: </kbd>&nbsp;&nbsp;History of all of the data definition (DDL) changes since CDC enablement.<br/>
+		<kbd>-&nbsp;cdc.index_columns: </kbd>&nbsp;&nbsp;Indexes associated with CDC tables.<br/>
+		<kbd>-&nbsp;cdc.lsn_time_mapping: </kbd>&nbsp;&nbsp;Used to map between log sequence number (LSN) commit values and the time the transaction was committed.<br/>
+		<kbd>-&nbsp;cdc.stg_CDCSalesOrderHeader_CT: </kbd>&nbsp;&nbsp;Each table that is enabled for CDC has a “copy” where all the changes are stored with additional columns describing, for example, the type of change.<br/>
+
+
+		<br/><br/>
+
+		<b><li>What CDC Components Are Availble in SSIS?</li></b>
+		There are three SSIS new components in SQL Server 2012. 
+		<br/><br/>
+
+		<p class="bg-primary">&nbsp;CDC source adapter </p>
+		This is a data flow source adapter that retrieves all changed data from CDC change tables. It has 5 different means of retrieving changed data: All, All with old values, net, net with update mask and net with merge.
+		(These are explained in details below)		
+
+		<br/><br/>
+		<p class="bg-primary">&nbsp;CDC Control task</p> 
+
+		Part of the control flow in SSIS, <a href='https://msdn.microsoft.com/en-us/library/hh758674.aspx' target='_blank'> it controls the life cycle of change data capture (CDC) packages.</a>
+		It can also deal with error scenaries and recovery.
+
+		<br/><br/>
+
+		<p class="bg-primary">&nbsp;CDC splitter</p> 
+		This is a Conditional Split transformation re-purposed to route rows bases on the value in the _$operation column so that the rows can be
+		divided into different data flows for insertion, update and deletion operations..
+		
+		<br/><br/><br/><br/>
+
+
+		<b><li>How Do I Retrieve Change Data Using the CDC Source Adapter?</li></b>
+		<br/>
+
+		<p>As mentioned above there are 5 different process modes.</p>
+
+		<br/>
+		<img src='./imgs/cdc_processing_mode.png'>
+		<br/><br/>
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Retrieve Method</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>All</i></td>
+				<td>A single row for each change is returned. This is useful if you require comprehensive auditing but does require all changes are merged to get latest values for a specfic record.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>All With Old Values</i></td>
+				<td>Before and after: same as All above except one row for pre-change and one row post change.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Net</i></td>
+				<td>In most ETL processes, this is the mode you will want. One row is returned per unique record containing an aggregate of all changes.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Net With Update Mask</i></td>
+				<td>Same as Net but a boolean column is added per source column indicating if the source column has changed.</td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Net With Merge</i></td>
+				<td>
+					This mode is designed for use with the T-SQL merge statement. Both update and insert statements are grouped together with the
+					same operation value. 
+				</td>
+			</tr>			
+
+			</tbody>
+
+		</table>
+
+		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="6.3">
+
+<hr class="ex">
+<h4 style='color:green'>6.3)&nbsp;Go With The Error Flow</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		Error paths are like the bouncers for bad rows, they can route bad rows away from the main data flow when problems
+		with the data are detected without affecting the good rows. These error paths are represented by red connectors between data flow components.
+		</p>
+
+		<p>There are 3 options for configuring error output:</p>
+		<li>1)&nbsp;<b>Fail Transformation</b> ceases the data flow if an error is detected.</li>		
+		<li>2)&nbsp;<b>Ignore Failure</b> allows the row to continue out the normal green data path with error values nullified in the process.
+		</li>		
+		<li>3)&nbsp;<b>Redirect</b> rows sends error rows out the error path to be handled in separate components.</li>		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<span class="glyphicon glyphicon-facetime-video"></span>&nbsp;
+<h4>
+The embedded video below from <a href='https://mva.microsoft.com/en-US/training-courses/implementing-a-data-warehouse-with-sql-server-jump-start-8257?l=KtvLHdKy_7204984382 target='_blank'>
+Microsoft Virtual Academy</a> re-iterates a lot of the content in this section and is very useful.</h4>
+
+<iframe src="https://mva.microsoft.com/en-US/training-courses-embed/implementing-a-data-warehouse-with-sql-server-jump-start-8257/Data-Flow-Extract-Data-IENh0dKy_8304984382" width="636" height="480" allowFullScreen frameBorder="0"></iframe>
+
+
+<br/><br/><br/>
+	
+
+
+
+
+
+<div id="7.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 7: Robust & Restartable</h3>
+<hr>
+
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>7.1)&nbsp;Transactions: Maintaining ACID Properties </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>The ACID (Atomicity, Consistency, Isolation and Durability) properties of database transactions are important to ensure that a database is maintained in a consistent state.
+		Should a database transaction fail, the database should be returned to its state prior to the transaction. To achive this SSIS has full support for transactions and isolation levels as discussed next.
+		</p>
+		<br/>
+
+		<p><b>Enabling Transactions</b></p>
+		<li>In SSIS transactions can be set at three levels: Package, Control Flow Container Level or Task Level</li>		
+		<li>A pre-requisite is to ensure that the <a href='https://technet.microsoft.com/en-us/library/cc770732(v=ws.10).aspx' target='_blank'> Microsoft Distributed Transaction Co-ordinator (MSDTC) service is running. </a>
+		Also ensure that any tasks that are going to be within a transaction are compatible with MSDTC.</li>		
+
+		<li>To enable a transaction for any supported component, set the TransactionOption Property to Required.
+		</li>
+
+		<li>
+			This property can also be set to Supported (the default, this means if a transaction is active it will join it) or Not Supported, it will not join a transaction if it is active.			
+		</li>
+
+		<li>
+			The Not Supported option is useful for any auditing or logging component to make sure it will not roll back in the event of a failure.
+		</li>
+
+		<br/>
+		<img src='./imgs/TransactionOption.png'>
+		<br/>
+
+		<br/><br/>
+		<p><b>Isolation Levels</b></p>		
+		<p>The I in AC<b>I</b>D, what degree of locking do you want to deploy when selecting records?</p>
+
+		<li>
+			There are several isolation levels available in SQL Server but the default in SSIS is Serializable whick locks the entire dataset whilst it is being read until the transaction completes.
+		</li>
+		
+		<li>
+			As shown below you set the needed transaction isolation level in SSIS by specifying the IsolationLevel property of a task or container:			
+		</li>
+
+		<br/>
+		<img src='./imgs/isolation_level.png'>
+		<br/><br/>
+
+		<li>
+		It is important to note that the IsolationLevel property in SSIS objects is moot unless you explicitly open a transaction inside SSIS by setting the TransactionOption property to Required.
+		</li>
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+<div id="7.2">
+
+<hr class="ex">
+<h4 style='color:green'>7.2)&nbsp;Checkpoints: Restartability </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			What can you do when a very long running ETL process fails 70% of the way through and you do not want to start at the beginning again?
+			This is where <b>checkpoints</b> come in to help re-startability.
+		</p>
+
+		<li>Checkpoints are set at the package level and there are 3 settings that must be enabled and set for it to work:
+		<br/>
+		<br/>1) <b>SaveCheckpoints:</b> Set to True to save checkpoints during execution.
+		<br/>2) <b>CheckPointFileName:</b> Path and name of an XML file to maintain state.
+		<br/>3) <b>CheckPointUsage:</b> Set to either Never, IfExists or Always. If it is set to Always the checkPointFileName must exist or package will not start.
+
+		</li>		
+		
+		<br/>
+		<img src='./imgs/checkPoints.png'>
+		<br/><br/>
+
+		<li>
+			After you enable checkpoints in a package, the final step is to set checkpoints at the
+			various tasks within your package. To do this, set the FailPackageOnFailure property at
+			each task or container to True.
+		</li>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="7.3">
+
+<hr class="ex">
+<h4 style='color:green'>7.3)&nbsp;Event Handling </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Event handling listens for specific events to occur and executes a seprate task to respond to that event. An interesting use case is 
+			the <b>OnPreExecute </b> event handler that could be set up to ensure there is sufficent server resources before running. 
+			<br/><br/>
+			Event handlers are set up per package and follow the control flow paradigm:
+
+		</p>
+
+		<img src='./imgs/eventHandling.png'>
+		<br/><br/>
+
+		<p>As is evident from the above image there are multiple event handlers:</p>
+		<li><b>OnError:</b>&nbsp;Listens and responds to an executable component reporting an error</li>		
+		<li><b>OnVariableValueChanged:</b>&nbsp;Runs when the value changes in a variable for which <a href='#RaiseChangeEvent'>the RaiseChangeEvent property is set to True</a></li>
+		<li><b>OnPreExecute:</b>&nbsp;Runs before an executable component is executed</li>
+		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="8.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 8: Dynamism</h3>
+<hr>
+
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>8.1)&nbsp;Connection Managers & Parameters </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+		<p>
+			The project deployment model introduced in SQL Server 2012 makes it a lot easier to move from
+			development to testing to production thanks to the project connection manager, parameters and build configurations.
+			This is a welcome departure from <a href='#package_configurations'>using package configurations.</a>
+		</p>
+
+		<li><b>Project Connection Manager:</b>&nbsp;Adhering to the software engineering maxim of re-use, the project connection
+		manager can be declared and initialised once and used throughout each package in the project. Package connection manager can be converted to project if required to do so.
+		</li>		
+		<br/>
+
+		<li><b>Parameters:</b>&nbsp;Allow you to assign values to properties within packages at the time of package execution. There are two types: project parameters and package parameters. Parameters have a lot of similar properties as variable properties including Name, Data type, Value etc.
+
+		</li>		
+
+		<br/>
+		<li>
+			<b>Build Configurations:</b>Multiple versions of solution and project properties can be stored using build configurations.
+			There are two levels that can be defined: solution configurations and project configurations.
+		</li>		
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="8.2">
+
+<hr class="ex">
+<h4 style='color:green'>8.2)&nbsp;Package Configurations </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p id='package_configurations'>
+			Prior to 2012 package configurations were the main method moving from development to test to production. 
+			As noted in the <a target='_blank' href='https://www.amazon.com/Training-70-463-Implementing-Warehouse-Microsoft/dp/0735666091'>training kit</a>, if you are using SQL Server 2012 or higher use the project deployment model with parameters.
+		</p>
+
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="9.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Nine: Logging, Auditing & Package Templates</h3>
+<hr>
+
+
+	<p>
+	This section provides details of the logging and auditing capabilities in SSIS.
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>9.1)&nbsp;Logging</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p></p>
+
+		<li><b>Log Providers:</b>In SSIS there are 5 distinct log providers namely Text (CSV) files, XML Files, SQL Server table, SQL Server Profiler and Windows Event log.
+		</li><br/>
+
+		<li><b>Log Configuration:</b>When configuring logging consider what events need to be captured and of these events which properties need to be captured? The events that can be captured are the same set of events <a href='#7.3'>that can be bound to event handlers as mentioned here.</a> <br/>
+		Some of the properties include Computer, Operator, SourceName and SourceID. Also included are StartDateTime, EndDateTime and Datacode
+		these final three are always captured.
+
+		</li><br/>
+		
+		<li><b>Log Settings Inheritance:</b>
+		Logging is configured at the Package, Container or Task Level. Each level can have its own specific logging settings or inherit from its parent. To inherit from its parent the specific object must have its LoggingMode property set to UseParentSetting.
+		ToDo: get screenshot of this
+		</li><br/>
+
+		<li><b>Log Configuration Templates:</b>
+		A useful feature is the ability to save a configuration as a log configuration template in XML format and import it in other objects or projects. 
+		</li><br/>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="9.2">
+
+<hr class="ex">
+<h4 style='color:green'>9.2)&nbsp;Auditing & Lineage </h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		Audits describe the individual states of data whereas logs describe the transitions between states. To put it more elegantly: <b>Procedural information about the events that have been captured in the log is given a material context by the corresponding audits. 
+		</b>
+		</p>
+
+		<p><b><u>Auditing Techniques</u></b></p>
+		<li><b>Elementary Auditing:</b>&nbsp;Provides basic information about the state of an individual unit of information. Typically it captures changes in data, type of the change and the time when the change was made.</li>		
+		<br/>
+		<li><b>Complete Auditing:</b>&nbsp;Comprehensive information is collected sometimes every atomic change on the source data.
+		Due to the amount of data collected it is usually implemented in a dedicated table.</li>		
+
+		<br/><br/>
+		<p><b><u>How is audit data stored in both methods?</u></b></p>		
+		<li><b>Storage of elementary audit data:</b>&nbsp;The relationship between primary data and audit data in the elementary method is 1:1. Therefore audit data in this method is usually stored in dedicated fields in the same row as the primary data.
+		</li>	
+		
+		<br/>
+
+		<li><b>Storage of complete audit data:</b>&nbsp;As this is more comprehensive a separate table is used to store the data state changes in this method. The relationship between the primary data table and the audit table is 1:N.
+		</li>		
+		
+		<br/><br/>
+
+		<p><b><u>Which SSIS Components Support Auditing?</u></b></p>
+		<p>The following components support the audit process in various ways:</p>
+
+		<li><b>Row Count Data Flow Transformation Component</b>	
+		</li>
+
+		<table class="table table-condensed">	
+					
+			<tr>
+				<td>
+				This component keeps track of the number of rows that have passed <br/>
+				through the data path that the component is connected to.</i></td>
+				<td>
+					<img src='./imgs/row_count.png' class='ex'>
+				</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+
+			
+		<br/>
+		
+
+		<li><b>Aggregate Data Flow Transformation Component</b>
+		</li>		
+
+		<table class="table table-condensed">	
+					
+			<tr>
+				<td>
+				Aggregates data in the data flow using various standard aggregate<br/>
+				 functions like Count, Group By, Sum, Average etc.</td>
+				<td>
+					<img src='./imgs/aggregate_data_flow_transform.png' class='ex'>
+				</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+
+		<br/>
+
+		<li><b>Audit Data Flow Transformation Component:</b></li>
+
+		<table class="table table-condensed">	
+					
+			<tr>
+				<td>
+				The <a href='https://msdn.microsoft.com/en-us/library/ms141150.aspx' target='_blank'>audit data flow transformation </a> supplements the data flow with additional <br/>information from a 
+				range of system variables shown in the table below. The Audit component <br/>
+				supports both elementary and complete auditing. 
+				</td>
+				<td>
+					<img src='./imgs/audit_transform.png' class='ex'>
+				</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+
+		<img src='./imgs/audit_sys_variables.png'/>
+		<br/><br/><br/>
+
+		<p><b><u>Correlating Audit Data With Log Data?</u></b></p>
+		<p>
+			Audit data and log data are better together. To link both of these at least two properties would be required. From the table of system variables listed above, TaskID and ExecutionID could be used to uniquely identify audit rows and their corresponding log entry.
+		</p>		
+		
+		<br/>
+
+		<p><b><u>How Long Should Audit and Log Data Be Retained?</u></b></p>
+		<p>
+			If audit and log data is allowed to accumulate unchecked then it could consume all the disk space on the drives they are written to. Audit and log data have a limited shelf life, they are usually only useful for the last set of actions they were involved in. Usually audit and log data is purged based on an aging process with a defined time-based retention period. It is recommended a two-phase approach is employed whereby the records are first marked for purging and then a second time period is used to purge flagged records.  
+		</p>
+
+			
+
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="9.3">
+
+<hr class="ex">
+<h4 style='color:green'>9.3)&nbsp;Package Templates</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		In most software development, there are certain repitive tasks that have to be completed each time a new software project is started.
+		To circumvent the requirement to do this each time, package templates can be used.
+		</p>
+		<p>Some notes on package templates:</p><br/>
+		<li>They are implemented as regular package files</li>		
+		<li>Consider what items should be added to a package template for example connection managers, event handlers, log providers
+		</li>
+		<li>The template can then be used in any project via the add new item option</li>
+		<li>Once the template is added remember to change its ID property</li>
+		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="10.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>
+&nbsp;Section Ten: SSIS Installation & SSIS Deployment</h3>
+<hr>
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>10.1)&nbsp;SSIS Installation</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		Prior to installation of SSIS on any server, some pertinent questions are:<br/><br/>
+
+
+
+			<b><u><span class="glyphicon glyphicon-question-sign"></span> Has SQL Server been installed already on the target server?</u></b><br/>
+			<p>
+			SSIS solutions can only be deployed to an environment built on the SQL Server platform. There is no requirement to use SQL Server for storage, the file system can be used for this even though SQL Server can be used to store solutions too. The requirement is for SQL Server to provide the execution engine known as the SSIS runtime to execute solutions on. 
+			</p>
+
+			<b><u><span class="glyphicon glyphicon-question-sign"></span> Is the installation for development or production?</u></b><br/>
+			<p>
+			This question is important for determining what <a href='#ToDo link here'>software tools </a> are required as part of the installation.
+			On the production server if remote access via SSMS or the SSIS deployment/maintenance tools is available then there is no requirement to
+			install these on it. So all that is really required to deploy/maintain/execute SSIS projects is Integration services. On the development
+			server SQL Server Data Tools (SSDT) would be the main software requirement.
+			</p>
+			
+			<br/>
+
+			<b><u><span class="glyphicon glyphicon-question-sign"></span> What account will be used for the service account?</u></b><br/>
+			<p>
+			In security, <b>the minimal rights principle </b> is based on the concept that principles are only granted the rights that they need to perform their work. 
+			This principle is applicable to creating accounts to host SSIS. The following accounts are recommened below based on operating system (OS) and server roles:
+
+			<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>OS</th>
+        			<th>Access to External Resources (Yes/No)?</th>        
+        			<th>Account Type</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Windows 2008r2/Windows 7</i></td>
+				<td>Yes</td>
+				<td>Managed Service Account (MSA)</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Windows 2008r2/Windows 7</i></td>
+				<td>No</td>
+				<td>Virtual Account</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Windows 2008/ Vista</i></td>
+				<td>N/A</td>
+				<td>Dedicated Domain Account</td>
+			</tr>			
+			
+			</tbody>
+
+			</table>
+			
+			<a href='https://technet.microsoft.com/en-us/library/dd548356.aspx' target='_blank'>More Details here on virtual accounts and managed service accounts</a>
+			</p>
+
+			<br/>
+
+			<b><u><span class="glyphicon glyphicon-question-sign"></span> Is it a 32-bit or 64-bit environment?</u></b><br/>
+			<p>
+				Some SSIS features are only available in 32-bit or 64-bit. Some are available on both. The important thing to consider is to ensure data providers that use 32-bit at design time are able to use the 64-bit version of the data provider at run time. The reason that these data providers use 32-bit at design time is that SSDT is a 32-bit application only.
+
+			</p>
+			<br/>
+
+
+
+			<b><u><span class="glyphicon glyphicon-question-sign"></span>Tools Bundles With SSIS</u></b><br/>
+			<p>
+				The following tools are bundled with SSIS and some my be useful whilst others are there for legacy purposes.
+			</p>
+
+			<p>
+				
+		<table class="table table-bordered">	
+
+			<thead>
+      			<tr>
+        			<th>Tool</th>
+        			<th>Command line? (Yes/No)</th>        
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Package Utility (Dtutil*)</i></td>
+				<td>Yes</td>
+				<td>Used to move, copy, delete and encrypt packages</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Execute Package Utility (DTexec)</i></td>
+				<td>Yes</td>
+				<td>Need to know this too, using DTexec can execute packages from the command line</td>
+			</tr>
+			
+			<tr>
+				<td><i>Deployment Wizard</i></td>
+				<td>No</td>
+				<td>This tool can be used to deploy packages to the SSISDB. <a href='#Project_Deployment'>Discussed in more detail here</a>
+				</td>
+			</tr>			
+			
+			<tr>
+				<td><i>Package Conversion Wizard</i></td>
+				<td>No</td>
+				<td>Converts a set of packages and their associative configuration to a project deployment file.</td>
+			</tr>			
+			
+			<tr>
+				<td><i>Package Upgrade Wizard</i></td>
+				<td>No</td>
+				<td>Ugrades packages from versions prior to SQL Server 2012 to 2012</td>
+			</tr>			
+			
+			<tr>
+				<td><i>Package Installation Utility</i></td>
+				<td>No</td>
+				<td>Using the deployment manifest it can be used to deploy packages to an instance of SQL Server.</td>
+			</tr>			
+			
+
+
+			</tbody>
+
+			</table>
+
+			<i>*Although it is not discussed in the training kit, DTutil is important and the commands need to be reviewed and understood.
+			<a href='https://msdn.microsoft.com/en-us/library/ms162820.aspx' target='_blank'>There are full details available here.</i>
+			</a>
+		
+		</p>
+		<br/>
+
+
+	</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="10.2">
+
+<hr class="ex">
+<h4 style='color:green'>10.2)&nbsp;SSIS Deployment </h4>
+<hr class="ex">
+
+<div>
+
+		
+		<p>
+			<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+			<b><u>The SSISDB Catalog</u></b><br/>
+
+			SSISDB is a special database provided in SQL Server to be used as the principal SSIS solution repository. 
+			It replaces the usage of MSDB as the SSIS project and package repository. 
+			As illustrated below SSISDB can be viewed in Object Explorer and under Integration Services Catalog.
+			<br/><br/>
+
+			<img src ='./imgs/ssisDB.png' class='ex'>
+
+			<br/><br/>
+			SSIS server is a name used to refer to an instance of SQL Server hosting the SSISDB catalog. Any instance of SQL Server 2012 can be used as the SSIS server, except SQL Server Express.
+
+		</p>
+
+
+
+
+
+		<p>
+			<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+			<b><u>SSISDB Configuration</u></b><br/>
+
+			<p>
+			The SSISDB catalog can be configured via the following settings.
+			</p>
+			<br/>
+
+			<table class="table table-bordered">	
+
+			<thead>
+      			<tr>
+        			<th>Property Name</th>
+        			<th>Description</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Encryption Algorithm Name</i></td>
+				<td>What encryption algorithm should be used to encrypt sensitive data (AES_256 by default)?</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Clean Logs Periodically</i></td>
+				<td>If TRUE operation details older than retention period (next) are deleted. When FALSE they are retained.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Retention Period (in days)</i></td>
+				<td>How long should operation details be retained before being purged?</td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Server Wide Default Logging Level</i></td>
+				<td>Default logging level for Integration Services Server.</td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Max Number of versions per project</i></td>
+				<td>How many versions should be kept for a single project?</td>
+			</tr>			
+
+			<tr>
+				<td><i>Periodically Remove Old Versions</i></td>
+				<td>When TRUE purge projects greater than max number of versions per project (above). When FALSE do not purge at all.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i id='Validation_Timeout'>Validation Timeout</i></td>
+				<td>If validations do not complete in number of seconds specified here then it will cease.</td>
+			</tr>			
+
+			</tbody>
+
+			</table>
+		<br/>
+
+			These properties can be listed via the catalog.catalog_properties view as shown in image below 
+
+			</br></br>
+			<img src ='./imgs/ssisDB_catalog_properties.png' class='ex'>
+			</br></br>
+
+
+		</p>
+
+
+
+		<p>
+			<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+			<b><u>SSISDB Objects</u></b><br/>
+			
+			<p>
+				As shown below, SSISDB objects represent SSIS projects and packages organized in folders that are deployed to the SSIS server.
+			</p>
+
+			</br>
+			<img src ='./imgs/ssis_objects.png' class='ex'>
+			</br></br>
+
+
+
+			<table class="table table-bordered">	
+
+			<thead>
+      			<tr>
+        			<th>Object</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Folders</i></td>
+				<td>
+					On deployment SSIS projects are places in folders in the SSISDB catalog.
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Projects & Packages</i></td>
+				<td>
+					Projects are treated as a single unit in the project deployment model. Each project can contain one or more packages.
+				</td>
+			</tr>
+			
+			<tr>
+				<td><i>Parameters</i></td>
+				<td>
+					Parameters are exposed to the environment. This means they can be configured dynamically at run time.
+				</td>
+			</tr>			
+			
+			<tr>
+				<td><i>Server Environments, Server Variables and Server Environment References</i></td>
+				<td>
+					Environment references represent the association of server variables with project and package parameters.
+				</td>
+			</tr>	
+
+			<tr>
+				<td><i id='operations'>Operations</i></td>
+				<td>
+					Operations are actions performed against the SSISDB catalog, projects and packages.
+				</td>
+			</tr>	
+			</tbody>
+
+			</table>
+
+		</p>
+
+
+
+		<p>
+			<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+			<b id='Project_Deployment'><u>Project Deployment</u></b><br/>
+
+			<p>
+				Under the project deployment model, SSIS project deployment is integrated into
+				SQL Server Data Tools (SSDT), as well as SQL Server Management Studio (SSMS). Both SSMS and SSDT call the Integration Services Deployment Wizard to perform the deployment. Incidentally the Wizard can be called explicitly. Project deployment files are named with the .ispac extension.
+			</p>
+			
+			</br>
+			<img src ='./imgs/deployment_wizard.png' class='ex'>
+			</br></br>
+
+
+		</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="11.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Eleven: Executing & Securing Packages</h3>
+<hr>
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>11.1)&nbsp;Package Execution</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Executing Packages On-Demand: Via UI and Programmatically</u></b><br/>
+
+		<p>
+			Usually packages are executed automatically on a scheduled basis or in response to an event. That said they can still be executed manually. To do this through a UI it is possible to use SSMS or for older packages deployed against the MSDB the DTExecUI (shown below) can be used. Please note DTExecUI cannot be used for packages stored in SSISDB.<br/>
+			Executing on demand programmatically present several more options including using T-SQL, PowerShell, SSIS Managed API and DTExec command line utility.
+
+		</p>
+			
+		</br>
+		<img src ='./imgs/dtexecui.JPG' class='ex'>
+		</br></br>
+
+	</p>
+
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Executing Packages Automatically</u></b><br/>
+
+			<p>
+				SQL Server Agent can be used to schedule the execution of SSIS packages. These packages can be scheduled to run in response to an event for example when CPU utilization drops below a specified level. Alternative they can be run on a scheduled basis either daily, weekly or monthly. <br/>
+
+				As mentioned <a href='#5.4'>in Section 5</a> the master package concept can be used to emulate what the SQL Server Agent job does with a lot more flexibility, error handling and of course parallel execution.
+			</p>
+			
+			</br>
+			<img src ='./imgs/ssis_sql_server_agent.png' class='ex'>
+			</br></br>
+	</p>
+
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Monitoring: Operations</u></b><br/>
+
+			<p>
+				As <a href='#operations'>defined in the previous</a> section operations are actions performed against the SSISDB catalog, projects and packages. As the execution of an operation is in progress, this progress is charted in the catalog.operations catalog view. In this view the status column denotes how the operation has progressed with the following values: 
+				<b>
+				created (1), running (2), canceled (3), failed (4), pending (5), ended unexpectedly (6), succeeded (7), stopping (8), and completed (9).
+				</b>
+			</p>
+
+			An alternative means of monitoring operations is via the Active Operations Dialog in SSMS. This is available by right-clicking on the node required (folder, project or package) and choosing Reports as shown in image below:
+			
+			</br></br>
+			<img src ='./imgs/active_operations_dialog.png' class='ex'>
+			</br></br>
+	</p>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Validations</u></b><br/>
+
+			<p>
+			Validations are used to check project or packages for any problems. In order to prevent problems during execution it is recommended to explicitly validate before execution for the first time or after they have been reconfigured. 
+
+			As <a href='#Validation_Timeout'>mentioned in 10.2</a>, If validations are taking too long they can be configured to timeout after a specified time using the Validation Timeout property.
+			</p>
+			
+			
+			</br>
+			<img src ='./imgs/validate_project.png' class='ex'>
+			</br></br>
+			
+	</p>
+
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Executions: Abstract Versus Concrete</u></b><br/>
+
+			<p>
+				
+			</p>
+			
+			</br>
+			<img src ='./imgs/' class='ex'>
+			</br></br>
+	</p>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u id='logging_levels'>Logging Levels</u></b><br/>
+
+			</br>
+			<img src ='./imgs/server_wide_logging_levels.png' class='ex'>
+			</br></br>	
+
+			<p>
+			As shown above there are several execution logging modes available in SSISDB. Depending on individual requirements these can be changed. For instance to enhance performance it would be preferable to avoid choosing Verbose.				
+			</p>
+			
+			</br>
+			<img src ='./imgs/execution_logging_modes.png' class='ex'>
+			</br></br>
+	</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="11.2">
+
+<hr class="ex">
+<h4 style='color:green'>11.2)&nbsp;Securing Packages</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		This defintion of SSISDB security is important as it identifies all the major players: <b>SSISDB permissions</b> define which <b>SSISDB principals</b> can perform which <b>SSISDB operations</b> on which <b>SSISDB securables.</b> Parsing this statement in the following notes....
+	</p>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Principals</u></b><br/>
+
+		<ul>
+			<li>SSISDB principals are SSISDB catalog users</li>
+			<li>One particular role called ssis_admin can perform administrative tasks on the SSIS server</li>
+			<li>Users must be granted explicit access to the SSISDB catalog</li>
+			<li>With the exception of the user that created the SSIDB catalog, who is a default member of the ssis_admin role</li>
+
+		</ul>
+			
+			&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/ssisdb_principals.png' class='ex'>
+			</br></br>
+	</p>
+
+
+		<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Securables</u></b><br/>
+
+		<p>
+			
+			<ul>
+				<li>SSISDB securables consist of folders, projects and operations</li>
+				<li>Folders are topmost securable, containing all other objects</li>
+				<li>Projects are child securables of folders containing packages and environment references</li>
+				<li>Environments contain environment variables and are child securables of the folders they belong to</li>
+			</ul>
+		
+		</p>
+			
+	</p>
+
+	<br/>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Permissions</u></b><br/>
+
+			<p>	
+			The permissions illustrated below can be granted, denied or revoked for SSISDB users.
+			</p>
+
+			&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/ssisdb_permissions_tbl.png' class='ex'>
+			</br></br>
+
+			<p>
+				<b>Permission Inheritance:</b>&nbsp;
+
+				<ul>
+					<li>
+					On folders, projects and environments permissions can be controlled explicitly
+					</li>
+
+					<li>
+					Packages, environment references and environment variables cannot have permissions assigned directly they must be inherited from their containing object.
+					</li> 
+
+					<li>Packages and environment variables inherit from their containing project. </li>
+
+					<li>Environment variables inherit from the containing environment.</li>
+				</ul>
+			</p>
+			
+			<p>
+				<b>Default Permissions:</b>&nbsp;By default any SSISDB user is permitted to deploy projects to the SSISDB server.
+			</p>
+
+		<br/>
+		
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Package Protection Levels</u></b>
+		<br/><br/>
+		Although this is <b><u>not</u></b> discussed in the training kit book, <a target='_blank' href='https://www.amazon.com/Training-70-463-Implementing-Warehouse-Microsoft/dp/0735666091'>70-463: Implementing a Data Warehouse with Microsoft SQL Server 2012.</a>, it is important to understand package protection levels. These values appear in the Properties window that you use to configure the properties of the package when you work with packages in SQL Server Data Tools (SSDT). A full listing and description of each protection level is discussed <a href='https://msdn.microsoft.com/en-us/library/ms141747(v=sql.110).aspx' target='_blank'>here.</a>
+						
+	</p>
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="12.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>
+&nbsp;Section Twelve: Troubleshooting & Performance Tuning</h3>
+<hr>
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>12.1)&nbsp;Troubleshooting</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Design-Time Troubleshooting</u></b><br/>
+
+			<p><b>Control Flow Breakpoints:&nbsp;</b>
+				
+				<ul>
+					<li>Breakpoints can be set in the control flow</li>
+					<li>To set one, right-click on the task or container and choose Edit Breakpoints</li>
+					<li>The conditions that they can be set on are the same as the <a href='#7.3'>ones available to event handlers</a></li>
+					<li>Hit count allows you to specify the number of times the break condition must occur before suspension</li>
+					<li>Hit Count Type works in tandem with Hit Count by checking the Hit Count value has met the specified condition to suspend execution</li>
+				</ul>
+			</p>
+			
+			</br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/hs_debug_1.jpg' class='ex'>
+			</br></br>
+
+
+			<p><b>Data Flow Data Viewers:&nbsp;</b>
+			Data Viewers are a very powerful feature in the data flow that allow you to view the rows of data as they flow through the pipeline. This is available in SSDT during development. The data is displayed in a grid display. When the rows have been reviewed the data can be moved on by clicking the Play button on the data viewer. Alternatively if finished with data viewer you can click on Detach.
+			</p>
+			
+			</br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/dataviewer.jpg' class='ex'>
+			</br></br>
+
+
+			<p><b>Other Methods of Debugging&nbsp;</b>
+			Some other methods of debugging include: <a href='#6.3'>error outputs</a>, sampling using the Percentage or Row Sampling transformation or capturing a count of the rows processed using the Row Count transformation. This is discussed in more detail in the section on <a href='#9.2'>Auditing and Logging</a>.
+			</p>
+			
+			</br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/row_count.png' class='ex'>
+			</br></br>
+
+
+	</p>
+
+
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Production-Time Troubleshooting</u></b><br/>
+
+			<p>
+				To a certain extent <b>Data Flow Taps</b> are the production equivalent of Data Viewers. Data Flow Taps are new in SQL Server 2012 and allow you to output the rows from a data path in a data flow task and export the tapped data to CSV format. <b>It is recommeded that data taps are enabled only for the purposes of troubleshooting as they contribute a lot to I/O</b>.
+
+				<br/><br/>
+				To add a data tap, the following three stored procedures must be run in succession in the order shown below
+
+				</br>
+				<img src ='./imgs/call_add_data_tap.png' class='ex'>
+				
+				<br/><br/>
+
+
+				<table class="table table-bordered">	
+
+				<thead>
+      				<tr>
+        				<th>Parameter Name</th>
+        				<th>Parameter Description</th>        
+      				</tr>
+    			</thead>
+
+				<tbody>
+			
+				<tr>
+					<td><i>@execution_id</i></td>
+					<td>The execution ID for the execution that contains the package.</td>
+				</tr>
+			
+				<tr>
+					<td><i>@task_package_path</i></td>
+					<td>PackagePath property in SSDT for the data flow task</td>
+				</tr>
+			
+				<tr>
+					<td><i>@dataflow_path_id_string</i></td>
+					<td>ID for data flow path</td>
+				</tr>			
+
+				<tr>
+					<td><i>@data_filename</i></td>
+					<td>File name where tapped data will be written to</td>
+				</tr>			
+			
+				<tr>
+					<td><i>@Max_rows</i></td>
+					<td>Optional how many rows to capture when not specified defaults to all</td>
+				</tr>			
+			</tbody>
+		</table>
+
+				<p>
+					Please note that there is an equivalent version of add_data_tap stored procedure that uses a GUID to identify a data flow task of the data flow component. It is called <a href='https://msdn.microsoft.com/en-us/library/hh230991(v=sql.110).aspx' target='_blank'>catalog.add_data_tap_by_guid</a>
+				</p>
+
+				<a href='https://msdn.microsoft.com/en-us/library/jj655339(v=sql.110).aspx' target='_blank'>
+				More details are available here
+				</a>
+
+			</p>
+			
+			
+	</p>
+
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+<br/><br/><br/>
+
+<div id="12.2">
+
+<hr class="ex">
+<h4 style='color:green'>12.2)&nbsp;Performance Tuning</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>The Data Engine</u></b><br/>
+
+			<p><b>What is a buffer?</b> A buffer is an area of memory where rows of data are stored to be operated on by data transformations. The number of rows contained in a buffer is determined based on the size of each row. The size of each row in turn is determined by the number of columns in the row and the size of each column. The data flow manages data in buffers.
+			</p>
+			
+			</br>
+
+			<img src ='./imgs/memory.jpg' class='ex'>
+			<br/>
+			<i>Downloaded from <a href='http://joe.greenrivertech.net/memory/memoryHierarchy.html' target='_blank'>
+			http://joe.greenrivertech.net/memory/memoryHierarchy.html</a>
+			</i>
+			</br></br>
+
+
+			<p><b>Transformation Types</b> are significant when it comes to performance.
+				As discussed in <a href='#4.2'>Section 4</a> transformations are either non-blocking, partially blocking or blocking. Any transformation type that is non-blocking is synchronous otherwise it is asynchronous for partial and fully blocking. A synchronous component is generally fastest as it re-uses buffers. An Asynchronous transform requires a new buffer, performs the most work and consumes more resources. A case in point being the Sort transformation which must receive all rows before it can process the data blocking all data buffers from being passed down the pipeline until it outputs.
+			</p>
+			
+			</br>
+			<img src ='./imgs/sort_transformation.png' class='ex'>
+			</br>
+
+			<br/>
+			<a href='https://www.intertech.com/Blog/the-three-types-of-ssis-transformations/' target='_blank'>
+			Excellent description of transformation types here</a>
+			<br/></br>
+
+			<p><b>Execution trees</b>...To understand buffer usage, understand execution trees. Unfortunately the definition of execution trees is not very helpful.
+			An <b>execution tree</b> is defined as a logical group of transformations that starts at either a source adapter or asynchronous transformation and ends at the first asynchronous transformation or destination adapter whichever comes first. Is that clear? No me neither. The gist of it is that asynchronous transformations are essentially execution tree delimiters.
+
+
+
+			<p><b>Backpressure Mechanism</b>...So what happens if the source adapter can read rows fast than the destination adapter can consume them, how in this scenario do we prevent memory from being overwhelmed? A very useful feature called <b>Backpressure Mechanism</b> is used to prevent this from happening. When the source adapter is reading rows faster than the components downstream can process them, this mechanism kicks in and prevents the source adapter from loading more rows.				
+			</p>
+			
+			<br/><br/>
+
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Buffer Optimization</u></b>
+		<br/><br/>
+
+		<p>
+		In order to maximize memory usage, SSIS dynamically sizes buffers based on the settings below.
+		</p>
+
+		<table class="table table-bordered">	
+
+			<thead>	
+      			<tr>
+        			<th>Buffer Input Parameter</th>
+        			<th>Configurable?</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Estimated Row Size</i></td>
+				<td>No</td>
+				<td>SSIS calculates this at design time based on metadata collected about the source data.</td>
+			</tr>
+
+			<tr>
+				<td><i>MinBufferSize</i></td>
+				<td>No</td>
+				<td>Not configurable but used by SSIS to determine if DefaultMaxBufferSiz is set too low.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>DefaultMaxBufferRows</i></td>
+				<td>Yes</td>
+				<td>How many rows to include in a buffer? This is based on Estimated Row Size by DefaultMaxBufferRows to get an estimate of buffer size.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>DefaultMaxBufferSize</i></td>
+				<td>Yes</td>
+				<td>Set to 10MB by default, it is limited to a max of 100MB.</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+
+
+		<br/><br/>
+
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Parallel Execution</u></b>
+		<br/>
+
+		<p>
+			If multiple physical or logical processors are available then performance in SSIS can be enhanced by executing tasks in parallel.
+		</p>
+
+		<p>
+		In the <b>control flow</b> there is the <b>MaxConcurrentExecutables</b> which defines how many packages can run concurrently. It defaults to -1 which is the number of logical processors + 2. Of course tasks must be arranged without precedence constraints in order to execute in parallel. If you need to determine how many logical processors are on your machine <a href='http://joeblogs.ie/sql_repo/index.htm#discovery' target='_blank'>this T-SQL script can determine this for you</a>.
+		
+
+		</br></br>
+		&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/MaxConcurrentExecutables.png' class='ex'>
+		</br>
+		</p>
+
+		</br>
+
+		<p>
+		In the <b>data flow</b> there is the <b>EngineThreads</b> property that determines how many work threads can be run in parallel by the scheduler. <a href='https://msdn.microsoft.com/en-us/library/ms141031.aspx' target='_blank'>This defaults to 10 in SQL Server 2012</a> and it divides these threads with an equal number between source components and work threads (transformation and destination components) so 10 each.
+		
+		</br></br>
+		&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/EngineThreads.png' class='ex'>
+		</br>
+		</p>
+
+		<br/><br/>
+
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Benchmarking Peformance</u></b>
+		<br/>
+
+		<p>When packages are deployed to the integrations services server, it is possible to use the Benchmark Reports available there to monitor performance. First configure <a href='#logging_levels'>Server-wide logging level</a> to Performance in SSMS as shown below
+
+		</br></br>
+		&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/ssisdb_logging_level.png' class='ex'>
+		</br>
+		</p>
+
+		</br>
+		<span class="glyphicon glyphicon-bookmark"></span>&nbsp;&nbsp;
+		<b><u>Using PerfMon to Monitor SSIS Performance</u></b>
+		<br/>
+
+		<p>
+		Performance monitor or PerfMon as it is colloquially known is a Windows tool used to monitor performance.  IT has some metrics or counters added to it when SSIS is installed on a server. Some of these counters are buffer related and one of the most pertinent is <b>Buffers Spooled counter</b>. This is useful because it reveals if your data flow has started swapping to disk storage from memory. 
+		</p>
+
+		</br>
+		&nbsp;&nbsp;&nbsp;&nbsp;<img src ='./imgs/buffers_spooled.png' class='ex'>
+		</br>
+
+	</p>
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+<br/><br/><br/>
+
+
+
+
+
+
+<div id="13.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section Thirteen: Data Quality Services (DQS)</h3>
+<hr>
+
+
+	<p>
+	Data can comply with all business rules that are implemented in a database via integrity constraints but is the data accurate? For instance both of these are valid street addresses: 54 Baggot Street and 45 Baggot Street. As a result both addresses will pass an integrity constraint to check valid addresses. However if a customer who lives at 54 Baggot Street is incorrectly entered as living at 45 Baggot street it will not be flagged by any constraints even though this is inaccurate. It is problems like these that data quality seeks to resolve.
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>13.1)&nbsp;Data Quality Dimensions</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Hard data quality dimensions are measurable. 
+		</p>
+
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Hard Data Quality Dimension</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Completeness</i></td>
+				<td>
+					How many NULLs are there? This completeness can be at attribute, tuple or relational level. It is possible to write a T-SQL query to inspect this and show percentage of NULLs in a column. ToDo:link from here to 16:3
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Accuracy</i></td>
+				<td>As mentioned in the intro above, data can satisy constraints but is it accurate? This is difficult to determine programmatically but through the use of frequency distributions or descriptive statistics it can be done.
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Information</i></td>
+				<td>
+					Entropy is the quantification of information in a system. A means of measuring this is to look at the spread of values in a column.
+				</td>
+			</tr>			
+
+			<tr>
+				<td><i>Consistency</i></td>
+				<td>
+					This measure is performed by compariing information stored in various databases.
+				</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+
+		<br/>
+
+		<p>
+			Soft data quality dimensions are <u>not</u> measurable and are based mainly on data users perceptions through interview, survey and questionnaires.
+		</p>
+
+		<table class="table table-condensed">
+
+			<thead>
+      			<tr>
+        			<th>Soft Data Quality Dimension</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Presentation Quality</i></td>
+				<td>
+					This is based on the user interface used to enter data and in analytical systems present data.
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Ease of Use</i></td>
+				<td>
+					Closely related to Presentation Quality, how easy is it for end users to interact with data?
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Timeliness</i></td>
+				<td>
+					How current or stale is the data?
+				</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Intention</i></td>
+				<td>
+					Is the data the right data for it's intended use?
+				</td>
+			</tr>
+
+			<tr>
+				<td><i>Trust</i></td>
+				<td>
+					A very important dimension, do users trust the data? If for a dataset hard dimensions score well but soft dimensions do not then users do not trust their data.
+				</td>
+			</tr>
+			</tbody>
+
+		</table>
+
+
+		<!--
+		If time come back to this and go through it...
+		::jh 02.01.2017
+
+		<thead>
+      			<tr>
+        			<th>Schema Data Quality Dimension</th>
+        			<th>Details</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i></i></td>
+				<td></td>
+			</tr>
+
+			
+			<tr>
+				<td><i></i></td>
+				<td></td>
+			</tr>
+
+			
+			<tr>
+				<td><i></i></td>
+				<td></td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+		-->
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="13.2">
+
+<hr class="ex">
+<h4 style='color:green'>13.2)&nbsp;Data Quality Services (DQS)</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Illustrated below is the architecture for Data Quality Services (DQS). The three DQS Databases (DQS_MAIN, DQS_PROJECTS, DQS_STAGING_DATA) are important as they house a lot of the functionality and data used in DQS. In fact DQS_MAIN is really the engine of DQS as it contains the DQS stored procedures and published knowledge bases (KBs). The Data Quality Client is essentially a web application that allows end users to manage KBs, execute cleansing, profiling and matching projects and administer DQS. 
+		</p>
+
+		<img src='./imgs/dqs_architecture.png' class='ex'/>
+
+
+		<br/><br/>
+
+		<p><b><u>Installing DQS</u></b></p>
+		
+		Both DQS Server and client are installed via SQL Server installation media. The SQL Server engine must be installed in advance or as part of the install. To install the DQS client, the PC must have IE 6 SP1 or higher and .NET Framework 4 installed. 
+
+		<br/><br/>
+		<img src='./imgs/DQS_install.png' class='ex'>
+		<br/><br/>
+
+		Once they are installed there is some post install configuration via the DQSinstaller.exe application. It does the following:
+		<br/>
+		<li><b id='dqs_databases'>Databases:</b> Adds the three DQS Databases DQS_MAIN, DQS_PROJECTS, DQS_STAGING_DATA</li>
+		<li><b id='dqs_roles'>Roles:</b> Creates three roles DQS_administrator, DQS_editor, DQS_operator in the DQS_MAIN database.</li>
+		<li><b>Integrates:</b> MDS if installed on same server is integrated with DQS.</li>
+		<li><b>Logins:</b> Two logins required by DQS are added to the installation instance called ##MS_DQS_adminisrator_login## and ##MS_DQS_db_owner_login##</li>
+		<li><b>Logs:</b> Logs installation details in a log file.</li>
+		<li><b>Stored Procedure:</b> A stored procedure is added to Master database called DQinitDQS_main</li>
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="13.3">
+
+<hr class="ex">
+<h4 style='color:green'>13.3)&nbsp;Data Quality Services Administration</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			<b>Using the Data Quality Client, DQS administration involves:</b>
+			<li>Setting up reference data services</li>	
+			<li>Configure threshold values for cleansing and matching</li>	
+			<li>Configuring log settings</li>		
+			<li>Monitoring DQS Activity</li>		
+			<li>Enable or disable notifications</li>
+		</p>
+
+		
+		<p>
+			<b>Using T-SQL or SQL Server Management Studion, DQS can be partially administered by:</b>
+			<li>Backing up and restoring <a href='#dqs_databases'>DQS databases</a>. Note the backups of DQS_MAIN and DQS_PROJECTS must be synchronized.</li>		
+			<li>Manage DQS Security by adding users to appropriate <a href='#dqs_roles'>DQS Roles</a> 
+			</li>		
+	
+		</p>
+	
+		
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+<div id="14.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 14: Master Data Implementation</h3>
+<hr>
+	<p>
+	There are many different types of data in the enterprise: Semi-Structured, Transactional (business transactions not database), Unstructured, Hierarchical, Metadata and the basis for this section, Master Data. 
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>14.1)&nbsp;What is Master Data?</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			There are a myriad of definitions available for master data. Put simply any data in an organisation that requires comprehensive management can be deemed master data. This comprehensive data management can take the form of data logging, auditing and versioning. If you have a dataset that has no requirement for any or all of these processes chances are these are not master data.
+			That said there are other metrics that can be applied to a dataset to determine its master data status...
+		</p>
+
+		<p>
+
+		The following table describes some of these metrics and uses the example of a hospital patient database to determine if the data held within it is master data. </br/></br/>
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Master Data Metric</th>
+        			<th>Description</th>        
+        			<th>Example</th>
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Cardinality</i></td>
+				<td>How many entities are involved? If there is small number for example five or less, these will be easy to maintain.</td>
+				<td>Hospitals depending on their capacity and type could have anything from 1000's to millions of patients per year.</td>
+			</tr>
+
+			<tr>
+				<td><i>Complexity</i></td>
+				<td>How many attributes are collected per entity? If for a product it is only two, ID and description then this is not going to be complex to maintain.</td>
+				<td>For a single patient: name, address, age, sex, medical history, diagnoses, procedures.</td>
+			</tr>			
+						
+			<tr>
+				<td><i id='Reusage'>Reusage</i></td>
+				<td>This increases the value of data as it is used in multiple business areas and therefore the data must be correct and accurate to prevent any issue that could cause a problem enterprise wide whereever the data is used.</td>
+				<td>Patient's data could be used by billing to determine cost per patient or alternatively by doctors to check for any health issues in a population or by governments to calculate national health resouce allocation.
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Auditing</i></td>
+				<td>Data may be audited for instance in a warehouse against the OLTP source system.</td>
+				<td>The clinicial information for a patient (diagnoses for example) may be audited against the patients electronic health record to ensure accuracy.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Versioning</i></td>
+				<td>Where data has an audit trail or a history of changes then history has to be maintained and this is indicatve of master data.</td>
+				<td>As mentioned above under auditing, if the patent data is audited and is then subjected to change it will have to be versioned to ensure that the correct version of the data is used.</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Volatility</i></td>
+				<td>Does the data change frequently? If it does then this will require to ensure that any volatility does not break any previous data dependencies.</td>
+				<td>A patient's health record due to continuing health may change and include additional diagnoses and procedures after each admission to hospital.</td>
+			</tr>						
+
+
+			</tbody>
+
+		</table>
+
+		So from this example the patient data is master data. From going through this table it is clear that master data is very much determined by the burden of work it places on the enterprise in maintaining said data.
+
+		</p>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="14.2">
+
+<hr class="ex">
+<h4 style='color:green'>14.2)&nbsp;Master Data Management</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		Gartner <a href='http://www.gartner.com/it-glossary/master-data-management-mdm/' target='_blank'>provide the following definition</a> of Master data management (MDM): it is a technology-enabled discipline in which business and IT work together to ensure the uniformity, accuracy, stewardship, semantic consistency and accountability of the enterprise’s official shared master data assets.
+		<br/><br/>
+		Depending on the organisation size, MDM can be quite challenging. A small organisation with a single operational database can more than likely do MDM in the same operating database. But scale up to a larger enterprise and providing all of these qualities in master data proves very challenging. The following issues can contribute to problems in MDM:
+
+		<br/>
+
+		<li><b><i>Domain/Subject Matter Experts:</i></b> If there are no domain experts involved in the MDM process this can have an impact on data stewardship</li>
+
+		<li><b><i>Documentation:</i></b> Lack of documentation seriously hinders MDM. For instance a large normalized database with no ERD is very difficult to parse and understand the relationships involved.
+		</li>
+
+		<li><b><i>Data Conflict:</i></b> Importing the same data from multiple sources proves challenging when trying to determine which data is most up to date and which is stale.
+		</li>
+
+		<li><b><i>Definitonal Differences:</i></b> Two sets of country codes both referring to the same countries but completely different.
+		</li>
+
+		<li><b><i>Data Quality: </i></b> Without proper data quality MDM is doomed to failure.</li>
+		
+		<li><b><i>Data Stewardship:</i></b> Who is responsible for the data?</li>
+
+		<br/>
+		<p>To meet these challenges and ensure that MDM remains accurate, SQL Server Master Data Services can be deployed in the enterprise.
+		</p>
+
+		<p>
+		<a href='https://www.simple-talk.com/sql/database-delivery/master-data-management-mdm-using-sql-server/' target='_blank'>
+		As an additional reference, there is an excellent article on Simple Talk by Hari Yadav </a>on the challenges of MDM in the enterprise and how SQL Server MDM services can be leveraged to address these challenges.
+		
+		</p>
+
+			
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="14.3">
+
+<hr class="ex">
+<h4 style='color:green'>14.3)&nbsp;Master Data Services Installation On Windows 7</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Small caveat before embarking on Master Data Management installation please ensure the OS you are installing on is 64-bit and by extension the version of SQL Server that will host MDS is 64-bit and is one of Developer, Enterprise or BI Edition? Also that it is a Windows Server environment or professional version for Windows  7/10. Unfortunately I didn't read the small print and wasted a lot of time attempting to get Master Data Services working on Windows 10 Home. 			
+
+		</p>
+
+		<br/>
+
+		<p>
+			Once the pre-requisites have been met, you begin installation by configuring the OS first...The instructions and screenshots below were completed on <b>Windows 7 Professional.</b><br/>
+
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Step</th>
+        			<th>Screenshot</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Open Programs and Features from Control Panel</i></td>
+				<td><img src='./imgs/mds_install/mds_01.png'></td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Under IIS and World Wide Web Services Choose each of the sections as shown opposite</i></td>
+				<td><img src='./imgs/mds_install/mds_02.png'></td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Under Application Development choose all options as shown</i></td>
+				<td><img src='./imgs/mds_install/mds_03.png'></td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Next is Health and Diagnostics, ensure that HTTP Logging and Request Monitor is selected here...</i></td>
+				<td><img src='./imgs/mds_install/mds_04.png'></td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Security requires Windows Authentication and Request Filtering</i></td>
+				<td><img src='./imgs/mds_install/mds_05.png'></td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Performance or performance features depending on your OS requires Static Content Compression to be selected</i></td>
+				<td><img src='./imgs/mds_install/mds_06.png'></td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Next to Management Tools or Web Management Tools, ensure that IIS Management Console has been selected</i></td>
+				<td><img src='./imgs/mds_install/mds_07.png'></td>
+			</tr>			
+
+
+			<tr>
+				<td><i>Once you have clicked OK, a progress bar is launched to chart the details of all changes being applied.</i></td>
+				<td><img src='./imgs/mds_install/mds_08.png'></td>
+			</tr>			
+
+			<tr>
+				<td><i>There are some more settings under .NET 3.51 that have to be enabled, HTTP Activation and non-HTTP Activation. Under Windows 7 WCF Activation could not be found?</i></td>
+				<td><img src='./imgs/mds_install/mds_09.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>Finally prior to MDS Installation, Windows Process Activation Service has to be enabled by selecting all options under it</i></td>
+				<td><img src='./imgs/mds_install/mds_10.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>Skipping past MDS installation as part of SQL Server straight to Post-Installation Tasks, launch the MDS Configuration Manager as shown and click on Create Database in top right-hand corner</i></td>
+				<td><img src='./imgs/mds_install/mds_11.png' height='450' width='550'></td>
+			</tr>		
+
+
+
+			<tr>		
+				<td><i>Click Next past this screen</i></td>
+				<td><img src='./imgs/mds_install/mds_12.png'></td>
+			</tr>		
+
+
+
+			<tr>
+				<td><i>Provide the SQL Server instance details next</i></td>
+				<td><img src='./imgs/mds_install/mds_13.png'></td>
+			</tr>		
+
+
+
+			<tr>		
+				<td><i>Specify the SQL Server instance with an account that has permission to create databases on that instance</i></td>
+				<td><img src='./imgs/mds_install/mds_14.png'></td>
+			</tr>		
+
+
+
+			<tr>
+				<td><i>Follow the instructions on the next screen to create the database, ensure Default collation is selected</i></td>
+				<td><img src='./imgs/mds_install/mds_15.png'></td>
+			</tr>		
+
+
+
+			<tr>
+				<td><i>Next specify the Windows Account with full access to all models</i></td>
+				<td><img src='./imgs/mds_install/mds_16.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>The database is now created, next the website for the Master Data Manager Webapp must be created as shown opposite ensure port 8080 is specified.</i></td>
+				<td><img src='./imgs/mds_install/mds_18.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>The database and the web app must now be associated with each other. The screen opposite facilitates this</i></td>
+				<td><img src='./imgs/mds_install/mds_19.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>Click Ok to complete the previous step and ok again. Internet Explorer should now launch...?</i></td>
+				<td><img src='./imgs/mds_install/mds_20.png'></td>
+			</tr>		
+
+
+			<tr>		
+				<td><i>Unfortunately during my installation it didn't! To fix this error I had to run ASPNET_REGIIS -i for the version of the framework I was using in this case v4.0 as confirmed in IIS Manager</i></td>
+				<td><img src='./imgs/mds_install/mds_21.png' height='300' width='500'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>How to confirm which version of the .NET Framework MDS is using in IIS Manager</i></td>
+				<td><img src='./imgs/mds_install/mds_22.png'></td>
+			</tr>		
+
+
+			<tr>
+				<td><i>As mentioned next run ASPNET_REGIIS -i</i></td>
+				<td><img src='./imgs/mds_install/mds_23.png'></td>
+			</tr>		
+
+
+
+			<tr>
+				<td><i>And try MDS Manager again in Internet Explorer? Success!</i></td>
+				<td><img src='./imgs/mds_install/mds_24.png'></td>
+			</tr>		
+
+
+
+			<tr>
+				<td><i>The final step for me was to install Microsoft Silverlight....</i></td>
+				<td><img src='./imgs/mds_install/mds_25.png'></td>
+			</tr>		
+
+			</tbody>
+
+</table>
+
+		</p>
+
+
+
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="14.4">
+
+<hr class="ex">
+<h4 style='color:green'>14.4)&nbsp;Master Data Services Models</h4>
+<hr class="ex">
+
+<div>
+
+	<ul id='mds_model'>
+		A Master Data Services Model defines the structure of the data in your master data management solution. Typically each model covers one business area.
+		As mentioned in detail <a href='https://msdn.microsoft.com/en-us/library/ee633746.aspx' target='_blank'>here</a> a model contains: 
+		<br/><br/>
+
+		<li>Entities which in turn contain...</li>
+		<li>&nbsp;&nbsp;&nbsp;&nbsp;-Attributes</li>
+		<li>&nbsp;&nbsp;&nbsp;&nbsp;-Hierarchies (Both Derived and Explicit)</li>
+		<li>&nbsp;&nbsp;&nbsp;&nbsp;-Collections</li>
+
+		<br/>
+		<p>Each of these are explained in more detail below:</p>
+		<br/>
+		
+		<p>
+			<u><b><a href='https://msdn.microsoft.com/en-us/library/ee633723.aspx' target='_blank'>
+			Entities</a></b></u><br/>
+			These are the basic MDS objects. They represent a real world object such as a person, a place or a thing. A base entity is important as it is the entity that is central to the model. Also the base entity is the starting point in a user interface for Master Data Manager.
+		</p>
+		<br/>
+
+		<p>
+			<u><b><a href='https://msdn.microsoft.com/en-us/library/ee633745.aspx' target='_blank'>
+			Attributes</a></b></u><br/>
+			As mentioned above entities contain attributes. Each entity <b> must have a code and a name </b> attribute. The code can be regarded as the key of an entity. There are three types of attributes:
+			<br/><br/>
+			1)&nbsp;Free-form attribute<br/>
+			2)&nbsp;Domain based attribute<br/>
+			3)&nbsp;File Attribute<br/>
+
+		</p>
+		<br/>
+
+		<p>
+			<u><b><a href='https://msdn.microsoft.com/en-us/library/ee633737.aspx' target='_blank'>
+			Hierarchies</a></b></u><br/>
+			These are a tree structure and can be both derived and explicit. A domain-based attribute forms a derived hierarchy. The derived hierarchy can be recursive as well for example the an employee entity with a manager attribute.
+		</p>
+		<br/>
+
+		<p>
+			<u><b><a href='https://msdn.microsoft.com/en-us/library/ee633733.aspx' target='_blank'>
+			Collections</a></b></u><br/>
+			These are like arrays in that they contain a flat list of members, that are not in a hierarchy. The members must be from the same entity.
+		</p>
+		<br/>
+
+		<p>
+		Finally there are <a href='https://msdn.microsoft.com/en-us/library/ff487015.aspx' target='_blank'>MDS business rules </a>which are a lot like data integrity constraints in a database in that they ensure data integrity. <br/>
+		They are applied in a defined order: <br/>
+		
+		1) Default Value<br/>
+		2) Change Value<br/>
+		3) Validation<br/>
+		4) External Action<br/>
+		5) User Defined Action Script<br/>
+
+		</p>
+	
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+
+
+<div id="15.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 15: Master Data Management</h3>
+<hr>
+
+	<p>
+	As mentioned <a href='#Reusage'>here</a>, one of the main goals of master data it to promote data re-use. Master data being the authorative source of data in the enterprise imposes the requirement to be able to import, export and secure these data in the enterprise. This section explains how these requirements can be met.
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>15.1)&nbsp;Import/Export Master Data</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			<b><u>MDS Packages</u></b><br/>
+			An MDS model deployment package is an XML file with a .pkg extension. They always contain metadata about the MDS model and depending on the method used to create them may contain data as well. They include all model objects <a href='#mds_model'>explained above</a> as well as Version Flags and subscription views.<br/><br/>
+			There are two tools used to create packages:<br/>
+			1) Model Deployment Wizard (Metadata only)<br/>
+			2) MDSModelDeploy command prompt utility (Metadata and data)<br/>
+
+			<br/><br/>
+			<b><u>Data Import</u></b><br/>
+			Data import is performed in two steps:
+			<br/><br/>
+
+			<b>Step 1) Load the data to staging tables.</b> For each entity there can be three staging tables named in accordance with the entity name for example for an entity called patient
+
+			<ul>
+				<li>stg.PatientEntity_leaf</li>
+				<li>stg.PatientEntity_consolidated</li>
+				<li>stg.PatientEntity_relationship</li>
+			</ul>
+			<br/>
+			During the staging process leaf and consolidate members can be created, updated, deactivated or deleted. Attribute can be updated and relationships designated in explicit hierarchies.
+
+			<br/><br/>
+			<b>Step 2) Move the data from the staging tables to MDS Models.</b>This can be done via staging stored procedures or via the MDM application itself. If possible use the staging stored procedures as they log transactions. Once the data is imported it must be validated against a set of business rules. Again this can be done using MDM or a stored procedure called dbo.updValidateModel.
+			<br/>
+
+			<br/><br/>
+			<b><u>Data Export</u></b><br/>
+			Returning to the point made earlier about data re-use, data can be exported via subscription views or via web methods exposed by the MDS web service. Subscription views are regular T-SQL views and it is possible to create your own in the MDM web app. Importantly any schema changes are not propogated through to subscription views and if this happens they must be refreshed manually in the MDM web app.
+		</p>
+
+		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="15.2">
+
+<hr class="ex">
+<h4 style='color:green'>15.2)&nbsp;Securing Master Data</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+	
+		<br/>
+		<b><u>Permissions</u></b><br/>	
+		MDS security is administered via Windows Active Directory users and groups. As per Windows security, assign permissions to groups and then add or remove users from this group when required. In order to use MDS a user must have at a minimum <a href='#faa'>Functional Area Access</a> and Model Object Permissions. Hierarchy Member Permissions is also available but is a more advanced option.<br/>
+		There are Read-Only, Update and Deny permissions. Importantly the Deny permission over-rides all other permissions. In addition there is the Navigational Access Permission, which enables a user to navigate to the level where they have been assigned permissions. 
+
+		<br/><br/>
+		<b><u>Administrators</u></b><br/>	
+		There are two levels of administrators, MDS System administrator and Model Administrators. There can only be one System Administrator and if there is a requirement to re-assign this user it has to be done programmatically via T-SQL. Model Administrators have Update permissions on the complete model 
+
+		<br/><br/>
+		<b><u id='faa'>Functional Area Access</u></b><br/>	
+		In the MDM there are five functional areas:<br/>
+		1)&nbsp;Explorer<br/>
+		2)&nbsp;Integration Management<br/>
+		3)&nbsp;Version Management<br/>
+		4)&nbsp;System Administration<br/>
+		5)&nbsp;User and Group Permissions<br/>
+
+
+		<br/>
+		<b><u>Overlapping Permissions</u></b><br/>	
+		There are two scenarios where permissions can overlap and conflict:<br/><br/>
+
+		&nbsp;&nbsp;<b>1) Overlapping model and member permissions:</b> To resolve this the most restrictive permission is applied namely
+			<ul>
+				<li>Deny over-rides all other permissions</li>
+				<li>Read-only over-rides Update</li>
+			</ul>  
+		
+		<br/>
+
+		&nbsp;&nbsp;<b>2) Overlapping user and group permissions:</b>
+			<ul>
+				<li>Deny over-rides all other permissions</li>
+				<li>Update over-rides read-only</li>
+			</ul>  
+
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="15.3">
+
+<hr class="ex">
+<h4 style='color:green'>15.3)&nbsp;Excel Master Data Services Add-In</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+		Once MDS is installed and operational, the MDS Add-In for Excel can be installed. One pre-requisite is that it requires the Visual Studio Tools for Office to be installed #ToDo: link here. In addition when choosing the 32-bit or 64-bit version of the MDS Add-In this is based on the version of Office you currently have installed and not just your processor. Once installed,open Excel and a new ribbon tab should appear called Master Data. Within here the MDS functionality is available. 
+
+		</p>
+
+		<b><u>Edit MDS Data in Excel</u></b><br/>	
+
+		<li>1)&nbsp;First of all connect to the required MDS instance via the MDM URL</li>		
+		<li>2)&nbsp;Once connected click  on Show Explorer button and the Model Data Explorer will be displayed</li>		
+		<li>3)&nbsp;Choose any entity to load its members, but in advance click on Filter else all members will be loaded in Excel</li>		
+		<li>4)&nbsp;Once editing is complete, click on Publish and Validate to submit all changes</li>		
+
+		<br/>
+
+		<b><u>Creating MDS objects in Excel</u></b><br/>	
+		<p>
+		This is for advanced users only. Within the MDS Excel Add-in entities can be created and attributes changed.
+		</p>
+	
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="16.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 16: Cleaning Data in a Data Quality Project</h3>
+<hr>
+
+	<p>
+		This section extends <a href='ToDo link here'>Data Quality Services</a> discussed earlier.
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>16.1)&nbsp;Knowledge Bases</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<b><u id='build_a_KB'>Build the DQS Knowledge Base (KB)</u></b><br/>	
+		<p>
+			Broadly speaking building a DQS knowledge base (KB) follows these processes:
+
+			<p>
+				<b>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Knowledge Discovery</b><br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Provide a data sample, heauristics are deployed against the data and any inconsistencies or errors are returned.
+			</p>
+
+
+			<p>
+				<b>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Domain Management</b><br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;This is quite involved and is explained in detail <a href='#domain_management'>below</a>. If you do choose to edit a knowledge base ensure it is published afterwards otherwise it will remain locked and only you can unlock KB's you have locked.
+			</p>
+
+
+			<p>
+				<b>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Reference Data Services</b><br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Data in your KB can be validated against external (hopefully clean) data provided by a third party. 
+			</p>
+
+
+			<p>
+				<b>&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Matching Policy</b><br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;This policy allows you to enter matching rules that DQS can then use to identify duplicate rows in an entity. It essentially provides a means of stating which columns in a row should be used to identify duplicates.
+
+			</p>
+
+
+		</p>
+
+		<br/><br/>
+		<b><u id='domain_management'>Domain Management</u></b><br/>	
+
+		<p>
+		A domain contains a semantic representation of a specific column in your data source.
+		</p>
+
+		<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Domain Property</th>
+        			<th>Details of Property</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Data Type</i></td>
+				<td>
+					Domain Data Type e.g. String
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Normalize</i></td>
+				<td>
+					Remove special characters from strings to increase likelihood of matches
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Format Output</i></td>
+				<td>
+					Strings again, uppercase or lowercase etc
+				</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Use Leading Values</i></td>
+				<td>
+					For Synonyms, should they be replaced with the leading values you define. Example Close is a synonym of Shut so if Close is defined as the leading value should every instance of Shut be replaced with Close?
+				</td>
+			</tr>	
+
+
+			<tr>
+				<td><i>Speller</i></td>
+				<td>Turn spell checker on</td>
+			</tr>	
+
+			<tr>
+				<td><i>Syntax Algorithms</i></td>
+				<td>It is possible for certain strings that syntax checking should be disabled e.g. addresses</td>
+			</tr>	
+			</tbody>
+
+		</table>
+
+
+		<li>
+			Linked Domain: These are used to map two data source fields to the same domain.
+		</li>
+
+		<li>
+			Domain Rules: This is a condition that DQS uses to validate, standardize and correct domain values.
+		</li>
+
+		<li>
+			Term-Based Relation: Use this to complete a domain value wherever it is encountered e.g. Inc. should always be expanded to incorporated.
+		</li>
+
+		<li>
+			Composite Domain: This consists of two or more single domains. An example being as address it can contain House Number, Street, Area and postcode as single domains which then can be rolled-up into a single domain.
+		</li>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="16.2">
+
+<hr class="ex">
+<h4 style='color:green'>16.2)&nbsp;Creating a DQS Cleansing Project</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			DQS uses knowledge bases for automatic computer-assisted cleansing. Now that a <a href='build_a_KB'>knowledge base has been built</a> it is time to clean some data against it. To this end a DQS Cleansing project can be undertaken. 
+		</p>
+
+		<p>A cleansing project typically follows these stages:</p>
+
+		<u><b>Stage 1: Sourcing the Data</b></u>
+		<li>Data can be provided from SQL Server or from Excel. If it is the latter than Excel must be installed on the same machine as the DQS Client.
+		</li>		
+	
+		<br/>
+
+		<u><b>Stage 2: Mapping</b></u>
+		<li>
+			Which columns in the data source are mapped to which KB domains?
+		</li>		
+
+		<br/>
+
+		<u><b>Stage 3: Computer Assisted Cleansing</b></u>
+		<li>
+			This is the main part of a DQS cleansing project, heuristics are deployed to clean the source data against the KB used.
+		</li>		
+
+		<br/>
+
+		<u><b>Stage 4: Interactive Cleansing</b></u>
+		<li>
+			During this stage the user intervenes to determine what changes proposed by DQS should be accepted or rejected. It is possible to see and modify the status of the operation performed on the data during the previous phase. The status could be one of the following: <i>Invalid, Corrected, Suggested, Correct, New.</i>
+		</li>		
+
+		<br/>
+
+		<u><b>Stage 5: Export Cleansed Data</b></u>
+		<li>
+			Final stage data can be exported to SQL Server or Excel. The export can include data only or data and cleansing information.
+		</li>		
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="16.3">
+
+<hr class="ex">
+<h4 style='color:green'>16.3)&nbsp;Data Profiling</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			The SSIS Data Profiling Task enables you to gain an insight into a dataset but it cannot clean the same dataset. However this is still useful as some of the information garnered from the Profiling Task can prove very valuable
+		</p>
+
+		The metrics returned by the Data Profiling Task include:
+
+
+
+
+<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Metric</th>
+        			<th>Description</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Column Length Distribution</i></td>
+				<td>Look for unexpected string lengths</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Column Null Ratio</i></td>
+				<td>What percentage of NULLs are there in a column</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Column Pattern</i></td>
+				<td>Uses RegEx to calculate distribution of regular expressions</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Column Statistics</i></td>
+				<td>Min, Max for numeric and datetime columns. As well as average and standard deviation for numeric too</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Column Value Distribution</i></td>
+				<td>For discrete columns only</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Candidate Key</i></td>
+				<td>Useful for determining a primary key, this metric gives the percentage of unique values in a column</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Functional Dependency</i></td>
+				<td>What is the interdependency between columns when determining their values?</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Value Inclusion</i></td>
+				<td>
+					Useful for exposing foreign keys, this metric gives the extent to which column values from one table have corresponding values in a set of colun values of another table
+				</td>
+			</tr>
+			
+			</tbody>
+
+</table>		
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+<div id="17.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 17: How To Train Your Data - Data Mining</h3>
+<hr>
+
+<hr class="ex">
+<h4 style='color:green'>17.1)&nbsp;Introduction to Data Mining</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Data Mining is a means of deriving hidden knowledge and patterns from a dataset by examining or training the dataset via data mining algorithms. Typically a data mining project involves the following steps:
+		</p>
+
+		<li>1)&nbsp;Identify:&nbsp;What are the business problems?
+		</li>		
+		<br/>
+	
+		<li>2)&nbsp;Transform:&nbsp;This is one the main steps it includes the data preparation and data training stage.
+		</li>		
+		<br/>
+	
+		<li>3)&nbsp;Act:&nbsp;What patters and rules have been learned in production can now be put into action.
+		</li>		
+		<br/>
+	
+		<li>4)&nbsp;Measure:&nbsp;As the old adage goes "what cannot be measured cannot be controlled". So in this stage a measurement of any improvements to the business should be taken.
+		</li>		
+		<br/>
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="17.2">
+
+<hr class="ex">
+<h4 style='color:green'>17.2)&nbsp;Text Mining</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			SSIS performs text mining using two text mining transformations: the term extraction transformation and term lookup transformation. Caveat Emptor both these transforms are only fully compatible with English language text and it is not advised to use them with other languages.
+		</p>
+		
+		<b><u><a href='https://msdn.microsoft.com/en-ie/library/ms141809.aspx' target='_blank'>
+		Term Extraction Transformation</a>
+		</u></b>
+
+		<br/><br/>
+		<img src='./imgs/term_extraction.png' class='ex'>
+		<br/><br/>
+
+		<p>
+			If you need to extract the key terms from a Unicode string or text column than the Term Extraction transformation can be used. It does this by finding sentence boundaries, identifies words, tags words in their different forms, stems words and finally normalizes words by considering their case depending on requirements.			
+		</p>
+
+		<p>
+			Additional functionality includes excluding any words that should not be extracted can be added to an exclusion list. Depending on the content being analyzed, the transformation is configurable and the following properties can be adjusted:
+
+			<table class="table table-condensed">	
+
+			<thead>
+      			<tr>
+        			<th>Property</th>
+        			<th>Adjustment</th>        
+      			</tr>
+    		</thead>
+
+			<tbody>
+			
+			<tr>
+				<td><i>Use Case-sensitive Term Extraction</i></td>
+				<td>False by default.</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Maximum Length of term</i></td>
+				<td>How many words in a phrase maximum?</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Frequency Threshold</i></td>
+				<td>How many times must a word appear before being extracted.</td>
+			</tr>			
+			
+			</tbody>
+
+</table>
+
+		</p>
+
+		<br/><br/>
+
+		<b><u>
+		<a href='https://msdn.microsoft.com/en-us/library/ms137850.aspx' target='_blank'>
+		Term Lookup Transformation</a>
+		</u></b>
+
+		<br/><br/>
+		<img src='./imgs/term_lookup.png' class='ex'>
+		<br/><br/>
+
+		
+		<p>This transformation counts the number of times that a term appears in a document. A use case for this transformation is to classify documents. It does this by using a set of dictionary terms stored in a SQL Server table and applies it to an input data set. Any table that has a column containing a set of key terms can be used as the reference dictionary. It is possble to use the Term Extraction transform to derive this column. The transformation returns two columns in the transformation output: Term and Frequency by default. 
+		</p>
+
+		<p></p>
+
+		<br/><br/>
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="17.3">
+
+<hr class="ex">
+<h4 style='color:green'>17.3)&nbsp;Data Preparation for Data Mining</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			<li>
+			Prior to being mined data must be prepared. Part of this preparation is to gain an understanding of it for example how are data values measured in different variables? This data overview can be gained using OLAP cubes, reports, graphs etc.
+			</li>	
+		</p>
+
+		<p>	
+			<li>
+				Data mining algorithms are complex and perform several passes through the data. Therefore they can take some time to train a large dataset. With this in mind it is preferable to choose a sample of the data, a rule of thumb for an indicative sample size is 20,000 cases. This sample should be statistically random but randomness is difficult. To help with this there are two transformations in SSIS: the percentage sampling and row sampling transformation. Both of these select the rows for the output in a statistically random manner.
+				
+			</li>		
+		</p>
+
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+
+<div id="18.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Section 18: Scripting</h3>
+<hr>
+
+	<p>
+
+	</p>
+
+<hr class="ex">
+<h4 style='color:green'>18.1)&nbsp;Script Task in the Control Flow</h4>
+<hr class="ex">
+
+<div>
+
+	<p>
+		As mentioned in the title, script tasks reside in the control flow. A common use case for a script task is to create one to consume the output from the <a href='#16.3'>SSIS Data Profiler.</a> Generally speaking developing a script task follows these steps:
+	</p>
+
+	<ul>
+
+		<li>1)&nbsp;Before coding you need to configure the script task by specifying the properties in the Script Task Editor. These include name, description and which language either Visual Basic or Visual C#?
+		</li></br>	
+
+		<li>2)&nbsp;<b>Entrypoint</b> is the first method that is going to be executed in the Script Task. This is Main by default and it is recommended that this remains unaltered.
+		</li></br>		
+
+		<li>3)&nbsp;Still in the Script Task Editor, what <b>variables</b> are going to be used? Here you specify which Read-Only and Read-Write variables will be required as shown next.
+		</li></br>
+
+		<img src='./imgs/script_variables_property.png' class='ex'/></br></br>
+
+		<li>4)&nbsp;<b>Property Expressions</b> can be specified next.
+		</li></br>		
+
+		<li>5)&nbsp;With properties defined it is now time to start writing the code in the language selected. All code is written in the <b>Visual Studio Tools for Applications IDE</b> and this can be launched by clicking the Edit Script button.
+		</li></br>		
+	
+		<li>6)&nbsp;In coding one of the most utilised features is to instantiate and use the <b>Dts object</b>. It exposes variables, connection managers, Events and logging.
+		</li></br>		
+		
+	</ul>
+
+	<p>
+		Finally when finished it is important for the script task to let the parent package know the execution status?This is communicated via the TaskResult property which can indicate success or failure.
+		</p>
+
+</div>
+
+</br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="18.2">
+
+<hr class="ex">
+<h4 style='color:green'>18.2)&nbsp;Script Component in the Data Flow</h4>
+<hr class="ex">
+
+<div>
+
+<p>
+	Script components are used in the data flow so when added to a data flow the first thing to consider is its context: Data source, data destination or data transformation? As shown next...<br/><br/>
+
+	<img src='./imgs/script_component_type.png' class='ex'>
+	<br/><br/>
+
+</p>
+
+<p>
+
+	As per the Script Task the metadata required is the same including name, description and language. But there the similarities end because the metadata for a script component gets a little more complex. The columns have to be detailed for input or output or both:
+</p>
+
+	
+
+	<table class="table table-condensed">	
+
+		<thead>
+      		<tr>
+        		<th>Context</th>
+        		<th>Input</th>        
+        		<th>Output</th>        
+      		</tr>
+    	</thead>
+
+		<tbody>
+			
+			<tr>
+				<td><i>Data Source</i></td>
+				<td>None</td>
+				<td>Multiple outputs</td>
+			</tr>
+
+			<tr>
+				<td><i>Data transformation</i></td>
+				<td>One Input</td>
+				<td>Multiple outputs</td>
+			</tr>
+
+			<tr>
+				<td><i>Data Destination</i></td>
+				<td>One Input</td>
+				<td>No outputs</td>
+			</tr>
+			
+		</tbody>
+
+	</table>
+
+	<br/>
+
+	<b><u>Ouput Synchronicity</u></b><br/>
+	<p>
+	The component output can be synchronous or asynchronous. The impact of this is in determining if the component is blocking or non-blocking. If the components SynchronousInputID property is its input ID then it is Synchronous otherwise it is asynchronous. 
+	</p>
+
+	<br/>
+	<b><u>Script Component Coding</u></b><br/>
+	<p>
+	When writing the script component in VSTA, there are three observable items:<br/><br/>
+	- Main which contains the ScriptMain class, where the code is written.<br/>
+	- ComponentWrapper which contains the UserComponent class.<br/>
+	- BufferWrapper which contains the classes for input and output.<br/>
+	</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+<div id="18.3">
+
+<hr class="ex">
+<h4 style='color:green'>18.3)&nbsp;Custom Components</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>
+			Much like classes in object oriented programming, custom components are package independent script components that can be incorporated and used in multiple SSIS packages. They follow their own separate software development life cycle and need to be robust enough so they can be deployed to any package they may be required in. This requirement for robustness makes them more complex to develop than the script component mentioned previously. The main reason for pursuing custom components is to promote re-use in an enterprise.
+
+		</p>
+		<br/>
+
+
+		<b><u>Planning the Custom Component</u></b><br/>
+		<p>Some pertinent questions prior to starting development include the following:
+		<br/><br/>
+
+		<table class="table table-condensed">	
+
+			<tbody>
+			
+			<tr>
+				<td><i>Role?</i></td>
+				<td>Data Source, data destination or data transformation?
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Usage?</i></td>
+				<td>When a source will it use multiple outputs? When a destination/transformation multiple inputs?
+				</td>
+			</tr>
+
+			
+			<tr>
+				<td><i>Access to external data?</i></td>
+				<td>
+					Where will the data come from: externally or internal data flow buffers?
+				</td>
+			</tr>			
+			
+			<tr>
+				<td><i>Behaviour?</i></td>
+				<td>
+					Blocking: fully, partial or non-blocking?
+				</td>
+			</tr>			
+			
+
+			<tr>
+				<td><i>Configuration?</i></td>
+				<td>
+					How will the component be configured?	
+				</td>
+			</tr>			
+			
+			</tbody>
+
+		</table>
+			
+		</p>
+
+
+		<b><u>Developing the Custom Component</u></b><br/>
+		<p>
+			Development is done via Visual Studio. As mentioned above custom components are similar to classes in object-oriented programming and in Visual Studion the class library template can be used to start developing the custom component. A fundamental part of development is to include references to these three SSIS libraries: <br/>
+
+			<ul>	
+				<li>Microsoft.SqlServer.DTSPipelineWrap</li>
+				<li>Microsoft.SqlServer.DTSRunTimeWrap</li>
+				<li>Microsoft.SqlServer.PipelineHost</li>
+			</ul>
+		</p>
+
+
+		<br/>
+
+		<b><u>Design-Time & Run-Time Support</u></b><br/>
+
+		<p>
+		Unlike the script task and component mentioned above, a custom component must provide both design and run-time programmatic logic. Why this duality? Before a custom component can be deployed in production it must first be placed in the data flow by the developer and configured and validated.
+		</p>
+
+			
+	
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+<div id="19.1">
+
+<h3><span class="glyphicon glyphicon-chevron-right"></span>
+&nbsp;Section Nineteen: Cleaning Data by Identity Mapping and De-duplicating
+</h3>
+<hr>
+
+
+
+<hr class="ex">
+<h4 style='color:green'>19.1)&nbsp;What is Identity Mapping & De-Duplicating?</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<li><b>What Is the Problem?</b></li>
+
+		<p>In most enterprises, the same set of entities can reside in independent databases where they are used for
+		different purposes. This becomes a problem when these disparate datasets have to be merged to form a single unified dataset. An example being a hospital that has the same set of patients stored in different databases in order to provide a different context. For instance there may be a blood bank database that stores the patients details and then the same set of patients may be stored in an emergency database but in a slightly different format with a completely different set of primary keys used to identify them. <br/>
+		<b>How can these databases be merged when there is no referential integrity on keys (String Matching)? When merging how do I avoid huge cross joins from overwhelming the server (Performance Problems)? How do I know that entity is definitely that entity (No Authoritative Source)?
+		</b>
+		</p>
+
+		<br/>
+		<li><b>So How Do We Match Entities?</b></li> 
+		In order to undertake matching a string matching algorithm could be utilised. In DQS the nGrams algorithm is used. This algorithm does the following to compare the similarity of two strings:
+		<br/><br/>
+
+		<ol>
+			<li>Tokenize both strings (breaks them up into  substrings of length n these are the nGrams)</li>
+			<li>Determine how many nGrams are the same between both strings</li>
+			<li>Derive a coefficient by dividing the number of nGrams that are the same by the total number of possible nGrams </li>
+			<li>Using this coefficient, which is between 0 and 1, the closer it is to 1 the more similar they are</li>
+		</ol>
+
+
+		<br/><br/>
+		By way of demonstration and to see nGrams in action check out the chart below from Google Books <a href='https://books.google.com/ngrams/graph?content=data&year_start=1800&year_end=2000&corpus=15&smoothing=3&share=&direct_url=t1%3B%2Cdata%3B%2Cc0' target='_blank'>that uses nGrams </a> to show when SQL came to prominance and started to be discussed significantly:<br/><br/>
+		
+		<iframe name="ngram_chart" src="https://books.google.com/ngrams/interactive_chart?content=sql&year_start=1800&year_end=2000&corpus=15&smoothing=3&share=&direct_url=t1%3B%2Csql%3B%2Cc0" width=900 height=500 marginwidth=0 marginheight=0 hspace=0 vspace=0 frameborder=0 scrolling=no></iframe>
+
+		<br/>
+		<a href='#14.1'>Master Data Services</a> has other string similarity algorithms available including:<br/>
+		<li>Fuzzy Lookup & Grouping transformations (More sophisticated and suitable for larger datasets but character data comparisons only)</li>
+		<li>Jaccard Index (similarity coefficient): Measures similarity between sets.</li>
+		<li>Simil</li>
+		<li>Levenshtein distance: Measures the minimum number of edits needed to transform one string into the other.</li>
+		<li>Jaro-Winkler distance</li>
+	
+		<br/><br/>
+
+		<li><b id='clean_first'>Performance Problems:</b></li> When doing the match large cross joins have to be avoided. Because any row from one side can be matched to any row from another side it results in quadratic complexity (Cartesian Join). To avoid this from happening a search space reduction technique could be used. Some of these techniques include partitioning or blocking, filtering or pruning and sorting neighbourhood. <br/>
+		Although these techniques are effective it is recommended to clean the data as much as possible first using the DQS cleansing transformation (discussed next). This will help to reduce the number of rows that require string matching. After cleaning T-SQL INNER JOIN could be used to eliminate exact matches from the search space.
+
+
+		<br/><br/>
+		<li><b>No Authoritative Source:</b></li> 
+		As discussed in the section on <a href='#14.1'>Master Data Services</a>, Master Data provides a definitive version of  a dataset in the enterprise. If MDS or an authoritative data source is available in the enterprise it could be used to determine which record to keep in a set of duplicate records and which to discard.
+
+
+	</ul>
+
+
+
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+<div id="19.2">
+
+<hr class="ex">
+<h4 style='color:green'>19.2)&nbsp;DQS Cleansing & Matching</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>As mentioned <a href='#clean_first'>in the previous section</a>, <b>cleaning the data first using the DQS Cleansing transformation helps to reduce the number of rows that require approximate matching.</b>
+		</p>
+
+		<li>The DQS Cleansing Transformation uses a DQS Knowledge base (created in advance) to cleanse data (As discussed <a href='#16.1'>here</a> on how to create a KB). The cleansing transformation has some advanced configuration options including Confidence level, Appended Data, Reason, Appended Data Schema and Standardize Output.
+		</li>		
+	
+		<br/>
+		<img src='./imgs/dqs_cleansing.png'/>
+		<br/><br/>
+
+		<p>For DQS matching, a matching policy Knowledge Base (KB) has to be prepared. The matching poicy contains one or more matching rules which define which domains will be used for the matching process. A very useful feature is to weight domains in accordance with their importance in the matching process. For instance some domains may have to be an exact match and not just similar. Alternatively some domains may be a pre-requisite for matching.
+		</p>
+
+		
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+<div id="19.3">
+
+<hr class="ex">
+<h4 style='color:green'>19.3)&nbsp;SSIS Fuzzy Transformations</h4>
+<hr class="ex">
+
+<div>
+
+	<ul>
+
+		<p>The fuzzy transformations only operate on character data so if number or datetime comparison is required it may be preferable to use DQS Matching. That said where there is a large volume of records required for comparison the fuzzy transformations perform much better than DQS.</p>
+
+
+		<li><b>The Science Bit...Fuzzy Transformations Algorithm</b></li>
+
+		Briefly fuzzy transformations combine public algorithms and internal components when matching. The following is involved in the process:
+
+		<ul>
+		<li>
+		Tokenizer: Tokens are substrings of original strings and what a tokenizer does it parse a string into a set of tokens.  
+		</li>
+
+		<li>
+		Jaccard Index (Similarity Coefficient): As mentioned in the Tokenizer above, it creates sets and these are important for the Jaccard index as it compares sets. 
+		</li>
+		<li>
+			Weighted Jaccard Index: The fuzzy transformation adds weights to each item in the set. Frequent tokens get lower weights and conversely less frequent tokens get higher weights.
+		</li>
+
+		<li>
+			Edit (Levenshtein) Distance: This algorithm is also used by fuzzy components. It measures the total number of character insertions, deletions or substitutions it takes to convert from one string to another.
+		</li>
+		</ul>
+
+		<br/>
+
+
+		<li><b>SSIS Fuzzy Lookup Transformation</b></li>	
+		<br/>
+		<img src='./imgs/fuzzy_lookup.png' class="ex">	
+		<br/><br/>
+
+		
+		The Fuzzy Lookup Transformation performs identity mapping. Matching is controlled via three parameters:
+		<br/>
+
+		<ul>
+		<li>Similarity threshold: A lower similarity will try to match more rows. It is recommended to start with higher threshold and gradually reduce on each iteration.
+		</li>
+		
+		<li>Token Delimiters: How are tokens delimited? This is useful for different languages.</li>
+
+		<li>Max number of matches to return per input row</li>
+
+		</ul>
+
+		<br/>
+		Output from the fuzzy lookup includes two columns: _Confidence and _Similarity. 
+		
+
+		It is important to acknowledge that the fuzzy lookup transform <a href='https://msdn.microsoft.com/en-us/library/ms137786.aspx' target='+blank'>builds an index called a match index on the reference table</a> it is using. Depending on the circumstances you may want to control the creation of this index especially if the same reference table is being used multiple times. In this scenario the potentially lengthy index build could be avoided each time it is required.
+		
+		<br/><br/>
+		<img src='./imgs/fuzzy_lookup_match_index.png'>
+		<br/><br/>
+		
+		
+	
+
+
+		<li><b>SSIS Fuzzy Grouping Transformation</b></li>
+		<br/>
+		<img src='./imgs/fuzzy_grouping.png' class="ex">
+		<br/><br/>
+
+		The Fuzzy Grouping Transformation helps with de-duplicating. The transformation uses a canonical row to represent the standard row or most plausibly correct row to compare other rows against. The Fuzzy Grouping adds the following columns to the output:
+		<br/>
+
+		<ul>
+
+		<li>
+			_key_in: This is effectively the primary key for the transformation, identifying each row.
+		</li>
+		
+		<li>
+			_key_out: Tags duplicate rows with the same ID for identification. In the canonical data row, _key_out = _key_in. Similarly the _key_out value for a group is the same as the value of the _key_in for the canonical row.
+		</li>
+
+		<li>
+			_score: Uses a value between 0 and 1 to denote how similar is the input row to the canonical row? Obviously the canonical row has a value of 1.
+		</li>
+
+		</ul>
+
+		<br/><br/>
+		<li><b><a href='https://www.microsoft.com/en-ie/download/details.aspx?id=15011' target='_blank'>
+		Excel Fuzzy Lookup Add-in
+		</a></b></li>		
+		<br/>
+
+		This is available as a free plugin for Excel and once installed adds an extra tab as shown below. Once installed it enables you to perform identity mapping with rows of Excel data. The algorithm is the same as the one used in the fuzzy lookup transformation.
+		<br/><br/>
+		<img src='./imgs/Excel_Fuzzy_tab.jpg' class="ex">	
+
+
+		
+	</ul>
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br>
+
+
+
+
+
+
+
+
+
+<br><br><br>
+<hr class="ex">
+<p>[Added on 11.10.2016 | joeblogs.ie]</p>
+<br>
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+</div> <!-- end div class="container theme-showcase" role="main" -->
+
+</body>
+</html>
+
+

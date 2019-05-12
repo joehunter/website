@@ -1,0 +1,156 @@
+﻿
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+<style>
+
+hr.ex {
+    
+    border: 0;
+    border-bottom: 1px dashed #ccc;
+    background: #999;
+}
+
+
+p.ex {
+    color: rgb(0,0,255);
+}
+
+
+  img.ex{
+    border: 2px #c0c0c0 solid; 
+  }
+
+</style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>joeblogs.ie | Python</title>
+
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" id="st_insights_js" src="http://w.sharethis.com/button/buttons.js?publisher=330639e3-8d46-4645-84fd-7f790c9546da"></script>
+<script type="text/javascript">stLight.options({publisher: "330639e3-8d46-4645-84fd-7f790c9546da", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+
+</head>
+
+<body>
+
+ <div class="container theme-showcase" role="main">
+
+<br/>
+
+
+
+<br/>
+<hr class="ex">
+<h3 id="topLinks" style='color:#000000'>
+<img src='./imgs/python-logo-100x100.png' >&nbsp;
+Notes&nbsp;on&nbsp;Python&nbsp;Usage
+&nbsp;|&nbsp;Joe Hunter
+</h3>
+<hr class="ex">
+
+<span class='st_sharethis' displayText='ShareThis'></span>
+<span class='st_facebook' displayText='Facebook'></span>
+<span class='st_twitter' displayText='Tweet'></span>
+<span class='st_linkedin' displayText='LinkedIn'></span>
+<span class='st_pinterest' displayText='Pinterest'></span>
+<span class='st_email' displayText='Email'></span>
+
+<br/><br/>
+
+<a href="../index.html" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;back to joeblogs.ie
+</a>
+
+<br/><br/>
+
+<h4 style='color:green'>About</h4>
+
+<div class='well'>
+Detailed on these pages are a solution to convert a fixed width ASCII file to CSV. Once converted the file is imported into SQL Server. Python
+was chosen as it has a number of libraries for quickly parsing fixed width format.
+<br/><br/>
+</div>
+
+<div>
+
+	<h4 style='color:green'>Contents</h4>
+	<div class="well">
+	<ul>
+	
+	<li><p><a href="#0"><span class="glyphicon glyphicon-link"></span>Requirements</a></p></li>
+	<li><p><a href="#1"><span class="glyphicon glyphicon-link"></span>Solution</a></p></li>
+	
+	
+	</ul>
+	</div>
+
+</div>
+
+<br></br>
+
+
+<div id="0">
+<hr class="ex">
+<h3 style='color:green'><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;Requirements</h3>
+<hr class="ex">
+
+<div>
+	
+	<p>
+
+		The requirement was to convert a fixed width ASCII file into CSV format so it could
+		be imported directly into SQL Server. Previously we used T-SQL to import the file
+		directly using OPENROWSET. But the driver being used (Microsoft.ACE.OLEDB.12.0) has a 
+		255 field limit which was exceeded with this file. Thankfully there is a SCHEMA INI 
+		file to accompany the fixed width file and this can be used to reference the columns
+		in the fixed width file.
+
+	</p>
+
+
+</div>
+
+<br>
+
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+
+<br/><br/><br/>
+
+
+
+
+
+
+<br><br><br>
+<hr class="ex">
+<br>
+<a href="#topLinks" class="btn btn-default btn-sm">
+	<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+</a>
+
+</div> <!-- end div class="container theme-showcase" role="main" -->
+
+</body>
+</html>
+
+
