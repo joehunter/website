@@ -95,6 +95,7 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 	
 	<li><p><a href="#2.1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;ANY, ALL, SOME</a></p></li>	
 	<li><p><a href="#2.1.2"><span class="glyphicon glyphicon-link"></span>&nbsp;APPLY operator</a></p></li>	
+	<li><p><a href="#2.1.3"><span class="glyphicon glyphicon-link"></span>&nbsp;Optimization of Joins versus subqueries</a></p></li>	
 
 	<li><p><a href="#2.3.3"><span class="glyphicon glyphicon-link"></span>&nbsp;WINDOW Functions: Aggregate, Ranking & Offset</a></p></li>
 
@@ -185,6 +186,46 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 </div>
 
 <br>
+
+
+
+<div id="2.1.3">
+	<hr class="ex">
+	<h4>Optimization of Joins versus subqueries</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			i always thought that joins and subqueries would be optimzed in a similar fashion and there would be very little difference in their
+			performance. However to borrow the old DBA adage...it depends.
+
+			Aggregates impact on subqueries more than joins, in that subqueries perform multiple data access. Joins do one data access.
+			Where subqueries come to the fore is looking for nonmatches, they can avail of the short circuit feature of the Anti Semi 
+			Join optimization.
+
+
+
+
+		</p>
+		
+		<br/>
+		<img src='./imgs/2.1.3.PNG'>
+		
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
+<br>
+
 
 
 
