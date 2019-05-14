@@ -102,6 +102,11 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 	<li><p><a href="#2.4.1"><span class="glyphicon glyphicon-link"></span>&nbsp;System Versioned Temporal Tables</a></p></li>
 	<li><p><a href="#2.4.2"><span class="glyphicon glyphicon-link"></span>&nbsp;Query and output JSON data</a></p></li>
 
+
+	<li><p><a href="#3.1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;Indexed Views & NOEXPAND table hint</a></p></li>
+
+
+
 	</ul>
 	</div>
 
@@ -292,7 +297,7 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 		<p>
 		The query below demonstrates exporting to JSON and then modifying it using some native JSON methods in T-SQL: JSON_VALUE and JSON_QUERY:
 		<br/>
-		<img src='./imgs/4.2.PNG'>
+		<img src='./imgs/2.4.2.PNG'>
 
 		</p>
 
@@ -307,6 +312,55 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 	
 
 </div>
+
+
+
+
+<div id="3.1.1">
+	<hr class="ex">
+	<h4>Indexed Views & NOEXPAND table hint</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			Indexed views are so useful for enhancing the performance of frequently used views. However there are a number of requirements that
+			must be adhered to before they can be applied. These are:
+
+			<ul>
+				<li>The view has to include SCHEMABINDING</li>
+				<li>The first index on the view has to be clustered and unique</li>
+				<li>If the view query is a grouped query it has to include the COUNT_BIG aggregate functions,
+					and you’re not allowed to manipulate the result of aggregate functions</li>
+				
+			</ul>
+		</p>
+		
+		<br/>
+
+		<p>
+		On a related point, I thought it was only Enterprise or Developer edition that could probably avail of indexed views in queries.
+		All other versions of SQL Server in my mind would ignore the view and expand the view definition. However the NOEXPAND table hint
+		can get around this.
+		<br/>
+		<img src='./imgs/3.1.1.PNG'>
+
+		</p>
+
+		
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
+
 
 
 <br/><br/><br/>
