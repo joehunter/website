@@ -77,7 +77,7 @@ p.ex {
 
 <h4 style='color:green'>About</h4>
 <div class='well'>
-Some notes from completing the <a target='_blank' href='https://www.microsoft.com/en-us/learning/exam-70-461.aspx'>
+Some notes from completing the <a target='_blank' href='https://www.microsoft.com/en-us/learning/exam-70-761.aspx'>
 Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight new topics introduced from the previous exam 70-461.
 
 <br/><br/>
@@ -104,6 +104,8 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 
 
 	<li><p><a href="#3.1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;Indexed Views & NOEXPAND table hint</a></p></li>
+
+	<li><p><a href="#3.2.2"><span class="glyphicon glyphicon-link"></span>&nbsp;Error Handling: THROW VS RAISERROR</a></p></li>
 
 
 
@@ -346,6 +348,122 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 		<br/>
 		<img src='./imgs/3.1.1.PNG'>
 
+		</p>
+
+		
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
+
+
+
+<div id="3.2.2">
+	<hr class="ex">
+	<h4>Error Handling: THROW VS RAISERROR</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			Invariably I have used RAISERROR when trying to initiate errors in SQL Sevrer. This was largely down to 
+			having maintain older versions of SQL Server that do not support THROW. Consequently I was unaware of some
+			the key differences between THROW and RAISERROR:
+			
+		</p>
+		
+		<br/>
+
+		<p>
+			
+			<table class='table table-bordered'> 
+
+				<thead>
+					<th>Scenario</th>
+					<th>RAISERROR</th>
+					<th>THROW</th>
+				</thead>
+
+				<tr>
+					<td>Can re-throw original system error</td>
+					<td>No</td>
+					<td>Yes</td>
+				</tr>
+
+				<tr>
+					<td>Activates Catch Block</td>
+					<td>Only where severity between 11 and 19 inclusive</td>
+					<td>Yes</td>
+				</tr>
+
+				<tr>
+					<td>Aborts batch when not using TRY-CATCH</td>
+					<td>No</td>
+					<td>Yes</td>
+				</tr>
+
+				<tr>
+					<td>Aborts/dooms transaction if XACT_ABORT is off</td>
+					<td>No</td>
+					<td>No</td>
+				</tr>
+
+				<tr>
+					<td>Aborts/dooms transaction if XACT_ABORT is on</td>
+					<td>No</td>
+					<td>Yes</td>
+				</tr>
+
+				
+				<tr>
+					<td>If error number is passed, it must be defined in sys.messages</td>
+					<td>No</td>
+					<td>Yes</td>
+				</tr>
+
+
+				<tr>
+					<td>Supports printf parameter markers directly</td>
+					<td>Yes</td>
+					<td>No</td>
+				</tr>
+
+				<tr>
+					<td>Supports indicating severity</td>
+					<td>Yes</td>
+					<td>No</td>
+				</tr>
+
+				<tr>
+					<td>Supports WITH LOG to log error to error log and application log</td>
+					<td>Yes</td>
+					<td>No</td>
+				</tr>
+
+				<tr>
+					<td>Supports WITH NOWAIT to send messages immediately to the client</td>
+					<td>Yes</td>
+					<td>No</td>
+				</tr>
+
+				
+				<tr>
+					<td>Preceding statement needs to be terminated</td>
+					<td>Yes</td>
+					<td>No</td>
+				</tr>
+
+					
+			</table>
+			
 		</p>
 
 		
