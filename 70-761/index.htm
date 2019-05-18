@@ -92,6 +92,7 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 	<div class="well">
 	<ul>
 
+	<li><p><a href="#1.3.1"><span class="glyphicon glyphicon-link"></span>&nbsp;Context info and Session Context</a></p></li>
 	
 	<li><p><a href="#2.1.1"><span class="glyphicon glyphicon-link"></span>&nbsp;ANY, ALL, SOME</a></p></li>	
 	<li><p><a href="#2.1.2"><span class="glyphicon glyphicon-link"></span>&nbsp;APPLY operator</a></p></li>	
@@ -115,6 +116,49 @@ Querying Data with Transact-SQL | 70-761</a> exam. These notes mainly highlight 
 </div>
 
 <br><br>
+
+
+
+<div id="1.3.1">
+	<hr class="ex">
+	<h4>Context info and Session Context</h4>
+	<hr class="ex">
+	
+	<div>
+		
+
+		<p>
+			There may be scenarios where information cannot be passed into stored procedures or functions using parameters. Such modules 
+			are called niladic and triggers are an example of this. In these scenarios it is possible to use context info or session context.
+
+		</p>
+		
+		<p>
+			Starting with context info, it stores a binary string with a limit of 128 bytes. Its value can be set and retrieved as per
+			example below:
+			
+			<img src='./imgs/1.3.1.PNG'>
+		</p>
+
+		<P>
+			Context info is really useful but there is the added overhead of parsing and re-assembling the varbinary string when storing multiple values.
+			There is a tool provided in SQL Server called Session Context that allows items to be stored and retrieved as key-value pairs.
+
+			<img src='./imgs/1.3.2.PNG'>
+		</P>
+
+
+	</div>
+	
+	<br>
+	
+	<a href="#topLinks" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-chevron-up"></span>&nbsp;top
+	</a>
+	
+
+</div>
+
 
 
 
